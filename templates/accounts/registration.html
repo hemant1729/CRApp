@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <style>
+            button {
+                border: none;
+                color: black;
+                padding: 15px 32px;
+                margin: 50px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                font-size: 16px;
+            }
+    </style>
+</head>
+<body>
+    <button style="position: absolute;
+        top: 8px;
+        right: 150px;" onclick="location.href='/'" type="button">Home page</button>
+    <h1 style="margin-top: 130px;">Registration Page</h1>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <center>
+        <p style = "font-size: 25px" >Username: <input type="text" name="username"></p>
+        <p style = "font-size: 25px">Password: <input type="password" name="password"></p>
+        <p ><input style="border: none;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;"  type="submit" value="Register"></p>
+        </center>
+    </form>
+</body>
+</html>
