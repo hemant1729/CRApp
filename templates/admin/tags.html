@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Tags</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Name: <input type="text" name="tag_name"></p>
+        <p><input type="submit" name="add" value="add"></p>
+        <p><input type="submit" name="search" value="search"></p>
+
+        {% if tag_names %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Name </th>
+                    <th> New name </th>
+                    <th> Update </th>
+                    <th> Delete </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in tag_names %} 
+            <tr>
+                <td> {{i}} </td>
+                <td> <input type="text" value='{{i}}' name='updated_names'> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i}}' name='update_list'></td>
+                <td> <input type='checkbox' value='{{i}}' name='delete_list'></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+    </form>
+</body>
+</html>
