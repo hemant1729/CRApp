@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Student</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Name: <input type="text" value='{{student_data.0}}' name="name"></p>
+        <p>Year: <input type="text" value='{{student_data.1}}' name="year"></p>
+        <p>Program: <input type="text" value='{{student_data.2}}' name="program"></p>
+        <p>Deparment: <input type="text" value='{{student_data.3}}' name="department"></p>
+        <p><input type="submit" name="update" value="Update Profile"></p>
+    </form>
+</body>
+</html>

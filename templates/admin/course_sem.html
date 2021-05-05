@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Semester</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Course: <input type="text" name="course_name"></p>
+        <p>Year: <input type="text" name="sem_year"></p>
+        <p>Season: <input type="text" name="sem_season"></p>
+        <p>Instructor roll number: <input type="text" name="roll_num"></p>
+        <p><input type="submit" name="add" value="add"></p>
+        <p><input type="submit" name="search" value="search"></p>
+
+        {% if course_sem_names %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Course </th>
+                    <th> Year </th>
+                    <th> Season </th>
+                    <th> Instructor </th>
+                    <th> Update </th>
+                    <th> Delete </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in course_sem_names %} 
+            <tr>
+                <td> <input type="text" value='{{i.0}}' name='updated_course_names' required> </td>
+                <td> <input type="text" value='{{i.1}}' name='updated_years' required> </td>
+                <td> <input type="text" value='{{i.2}}' name='updated_seasons' required> </td>
+                <td> <input type="text" value='{{i.3}}' name='updated_roll_numbers' required> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.4}}:{{i.5}}:{{i.6}}' name='update_list'></td>
+                <td> <input type='checkbox' value='{{i.4}}:{{i.5}}:{{i.6}}' name='delete_list'></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+    </form>
+</body>
+</html>

@@ -2,10 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
+from ..models import *
 
 #username: admin, password: 12345
 #username: temp, password: 1234
-
+#username: temp1, password: 123456
+#username: temp2, password: 12345
 
 def is_admin(request):
     return request.user.username=='admin'
@@ -50,10 +52,11 @@ def register(request):
         data = request.POST
         username = data['username']
         password = data['password']
-        print(username, password)
 
         try:
             new_user = User.objects.create_user(username=username, password=password)
+            student = Student(roll_num=username)
+            student.insert()
             new_user.save()
         except:
             error = "Invalid form data or user already exists"

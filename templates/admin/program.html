@@ -10,7 +10,7 @@
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <p>Name: <input type="text" name="dept_name"></p>
+        <p>Name: <input type="text" name="prog_name"></p>
         <p><input type="submit" name="add" value="add"></p>
         <p><input type="submit" name="search" value="search"></p>
 
@@ -28,7 +28,7 @@
             </thead>
             <tbody>
 
-            {% for i in dept_names %} 
+            {% for i in prog_names %} 
             <tr>
                 <td> {{i}} </td>
                 <td> <input type="text" value='{{i}}' name='updated_names' required> </td>

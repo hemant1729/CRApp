@@ -370,5 +370,77 @@ def admin_course_tags(request):
 
 
 @user_passes_test(is_admin)
+def admin_course_sem(request):
+    error = ''
+    context = {}
+    if request.method == 'POST': 
+        data = request.POST
+        try:
+            if 'add' in data:
+                course_name = data['course_name']
+                course = Course(course_name=course_name)
+                course.fill()
+                course_id = course.course_id
+
+                sem_year = data['sem_year']
+                sem_season = data['sem_season']
+                sem = Semester(sem_year, sem_season)
+                sem.fill()
+                sem_id = sem.sem_id
+
+                roll_num = data['roll_num']
+                instructor = Instructor(roll_num=roll_num)
+                instructor.fill()
+                instructor_id = instructor.instructor_id
+
+                course_sem = Course_semester(course_id, sem_id, instructor_id)
+                course_sem.insert()
+
+            elif 'search' in data:
+                course_name = data['course_name']
+                sem_year = data['sem_year']
+                sem_season = data['sem_season']
+                roll_num = data['roll_num']
+
+                course_sem_list = Course_semester.search(course_name, sem_year, sem_season, roll_num)
+                course_sem_names = [[c.course_name, c.year, c.season, c.roll_number, c.course_id, c.sem_id, c.instructor_id] for c in course_sem_list]
+                context['course_sem_names'] = course_sem_names
+            elif 'update' in data:
+                #delete has more priority 
+                for s in data.getlist('delete_list'):
+                    s = s.split(':')
+                    course_sem = Course_semester(s[0],s[1],s[2])
+                    course_sem.delete()
+
+                for u in data.getlist('update_list'):
+                    uid, ucourse_id, usem_id, uinstr_id = u.split(':')
+                    if ucourse_id+':'+usem_id+':'+uinstr_id in data.getlist('delete_list'):
+                        continue
+                    course_sem = Course_semester(ucourse_id, usem_id, uinstr_id)
+                    new_course_name = data.getlist('updated_course_names')[int(uid)]
+                    new_year = data.getlist('updated_years')[int(uid)]
+                    new_season = data.getlist('updated_seasons')[int(uid)]
+                    new_roll_num = data.getlist('updated_roll_numbers')[int(uid)]
+
+                    new_course = Course(course_name=new_course_name)
+                    new_course.fill()
+                    new_course_id = new_course.course_id
+
+                    new_sem = Semester(new_year, new_season)
+                    new_sem.fill()
+                    new_sem_id = new_sem.sem_id
+
+                    new_instructor = Instructor(roll_num=new_roll_num)
+                    new_instructor.fill()
+                    new_instructor_id = new_instructor.instructor_id
+                    course_sem.update(new_course_id, new_sem_id, new_instructor_id)
+        except:
+            error = 'DB error'
+
+    context['error'] = error 
+    return render(request, 'admin/course_sem.html', context)
+
+
+@user_passes_test(is_admin)
 def admin_test(request):
     return render(request, 'admin/test.html')

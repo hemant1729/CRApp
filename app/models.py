@@ -19,6 +19,18 @@ class Program:
     def __init__(self, prog_name=None):
         self.prog_name = prog_name
     
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM PROGRAM WHERE prog_name=%s',(self.prog_name,))
+            conn.commit()
+            data = cur.fetchone()
+            self.prog_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
     def delete(self):
         try:
             conn = get_connection()
@@ -141,6 +153,19 @@ class Course:
         self.dept_id = dept_id
         self.credits = credits
 
+
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT course_id FROM COURSE WHERE course_name=%s',(self.course_name,))
+            conn.commit()
+            data = cur.fetchone()
+            self.course_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
     def delete(self):
         try:
             conn = get_connection()
@@ -209,6 +234,20 @@ class Instructor:
         self.instr_name = instr_name
         self.dept_id = dept_id
 
+
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT instructor_id FROM INSTRUCTOR WHERE roll_num=%s',(self.roll_num,))
+            conn.commit()
+            data=cur.fetchone()
+            self.instructor_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+
     def delete(self):
         try:
             conn = get_connection()
@@ -275,6 +314,19 @@ class Semester:
     def __init__(self, year=None, season=None):
         self.year = year
         self.season = season
+
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT sem_id FROM SEMESTER WHERE year=%s AND season=%s',(self.year, self.season))
+            conn.commit()
+            data = cur.fetchone()
+            self.sem_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
 
     def delete(self):
         try:
@@ -413,11 +465,29 @@ class Student:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('SELECT * FROM STUDENT WHERE roll_num=%s', (self.roll_num,))
+            cur.execute('SELECT * FROM (STUDENT LEFT JOIN DEPARTMENT USING (dept_id)) LEFT JOIN PROGRAM USING (program_id) WHERE roll_num=%s', (self.roll_num,))
             conn.commit()
             data = cur.fetchone()
-            print(data)
-            self.name, self.year, self.program_id, self.cpi, self.tot_credits, self.dept_id = data[2:]
+            self.name = data[4]
+            self.year = data[5]
+            self.program_id = data[0]
+            self.cpi = data[6]
+            self.tot_credits = data[7]
+            self.dept_name = data[8]
+            self.prog_name = data[9]
+            self.dept_id = data[1]
+            self.student_id = data[2]
+
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self,name,year,dept_id,prog_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE STUDENT SET (name, year, dept_id, program_id)=(%s, %s, %s,%s) WHERE roll_num=%s', (name, year, dept_id, prog_id, self.roll_num))
+            conn.commit()
             cur.close()
         except:
             raise Exception("connection error")
@@ -444,7 +514,7 @@ class Student:
             raise Exception("connection error")
 
     @staticmethod
-    def search(self):
+    def search():
         try:
             conn = get_connection()
             cur = conn.cursor()
@@ -508,6 +578,7 @@ class Tag:
         except:
             raise Exception("connection error")
 
+
 class Course_tags:
     def __init__(self, course_id=None):
         self.course_id = course_id
@@ -555,3 +626,75 @@ class Course_tags:
             cur.close()
         except:
             raise Exception("connection error")
+
+
+class Course_semester:
+    def __init__(self, course_id=None, sem_id=None, instructor_id=None):
+        self.course_id = course_id
+        self.sem_id = sem_id
+        self.instructor_id = instructor_id
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM COURSE_SEMESTER WHERE course_id=%s AND sem_id=%s AND instructor_id=%s',\
+                (self.course_id, self.sem_id, self.instructor_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_course_id, new_sem_id, new_instructor_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE COURSE_SEMESTER SET (course_id, sem_id, instructor_id) = (%s, %s, %s) WHERE course_id=%s AND \
+                sem_id=%s AND instructor_id=%s', \
+            (new_course_id, new_sem_id, new_instructor_id, self.course_id, self.sem_id, self.instructor_id))
+            conn.commit()
+            cur.close()
+            self.course_id = new_course_id
+            self.sem_id = new_sem_id
+            self.instructor_id = new_instructor_id
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO COURSE_SEMESTER (course_id, sem_id, instructor_id) VALUES (%s, %s, %s)', \
+                (self.course_id, self.sem_id, self.instructor_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(course_name, sem_year, sem_season, instr_roll_num):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (COURSE_SEMESTER NATURAL JOIN COURSE NATURAL JOIN SEMESTER) INNER JOIN INSTRUCTOR USING (instructor_id)\
+                 WHERE course_name ILIKE %(course_name)s||'%%' AND CAST(year AS TEXT) ILIKE %(year)s||'%%' \
+                     AND CAST(season AS TEXT) ILIKE %(season)s||'%%' AND roll_num ILIKE %(roll_num)s||'%%'", \
+                         {'course_name': course_name, 'year': sem_year, 'season': sem_season, 'roll_num': instr_roll_num})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                course_id = d[2]
+                sem_id = d[1]
+                instructor_id = d[0]
+                course_semester = Course_semester(course_id=course_id, sem_id=sem_id, instructor_id=instructor_id)
+                course_semester.course_name = d[14]
+                course_semester.year = d[18]
+                course_semester.season = d[19]
+                course_semester.roll_number = d[20]
+                output.append(course_semester)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
