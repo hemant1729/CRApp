@@ -6,35 +6,36 @@
 </head>
 <body>
     <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
-    <h2>Course</h2>
+    <h2>Instructor</h2>
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <p>Course Name: <input type="text" name="course_name"></p>
+        <p>Roll Num: <input type="text" name="roll_num"></p>
+        <p>Instr Name: <input type="text" name="instr_name"></p>
         <p>Dept Name: <input type="text" name="dept_name"></p>
         <p><input type="submit" name="add" value="add"></p>
         <p><input type="submit" name="search" value="search"></p>
 
-        {% if course_names %}
+        {% if instr_names %}
 
         <table class="table">
             <thead>
                 <tr>
+                    <th> Roll Number </th>
+                    <th> Roll Number </th>
                     <th> Name </th>
-                    <th> Course name </th>
                     <th> Dept</th>
-                    <th> Credits </th>
                     <th> Update </th>
                     <th> Delete </th>
                 </tr>
             </thead>
             <tbody>
-            {% for i in course_names %} 
+            {% for i in instr_names %} 
             <tr>
                 <td> {{i.0}} </td>
-                <td> <input type="text" value='{{i.0}}' name='updated_course_names' required> </td>
-                <td> <input type="text" value='{{i.1}}' name='updated_dept_names'> </td>
-                <td> <input type="text" value='{{i.2}}' name='updated_credits'> </td>
+                <td> <input type="text" value='{{i.0}}' name='updated_roll_nums' required> </td>
+                <td> <input type="text" value='{{i.1}}' name='updated_instr_names'> </td>
+                <td> <input type="text" value='{{i.2}}' name='updated_dept_names'> </td>
                 <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.0}}' name='update_list'></td>
                 <td> <input type='checkbox' value='{{i.0}}' name='delete_list'></td>
             </tr>

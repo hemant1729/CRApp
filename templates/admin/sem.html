@@ -6,37 +6,40 @@
 </head>
 <body>
     <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
-    <h2>Program</h2>
+    <h2>Semester</h2>
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <p>Name: <input type="text" name="dept_name"></p>
+        <p>Year: <input type="text" name="year"></p>
+        <p>Season: <input type="text" name="season"></p>
         <p><input type="submit" name="add" value="add"></p>
         <p><input type="submit" name="search" value="search"></p>
 
-
-        {% if prog_names %}
+        {% if sem_names %}
 
         <table class="table">
             <thead>
                 <tr>
-                    <th> Name </th>
-                    <th> New name </th>
+                    <th> Semester </th>
+                    <th> New year </th>
+                    <th> New season </th>
                     <th> Update </th>
                     <th> Delete </th>
                 </tr>
             </thead>
             <tbody>
-
-            {% for i in dept_names %} 
+            {% for i in sem_names %} 
             <tr>
-                <td> {{i}} </td>
-                <td> <input type="text" value='{{i}}' name='updated_names' required> </td>
-                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i}}' name='update_list'></td>
-                <td> <input type='checkbox' value='{{i}}' name='delete_list'></td>
+                <td> {{i.0}} {{i.1}}</td>
+                <td> <input type="text" value='{{i.0}}' name='updated_years' required> </td>
+                <td> <input type="text" value='{{i.1}}' name='updated_seasons' required> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.0}}:{{i.1}}' name='update_list'></td>
+                <td> <input type='checkbox' value='{{i.0}}:{{i.1}}' name='delete_list'></td>
             </tr>
             {% endfor %}
+            </tbody>
         </table>
+
         {% endif %}
         <p><input type="submit" name="update" value="update"></p>
     </form>

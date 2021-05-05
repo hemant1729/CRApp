@@ -15,124 +15,6 @@ def get_connection():
         raise Exception("connection error")
 
 
-class Course:
-    def __init__(self, course_name=None, dept_id=None, credits = None):
-        self.course_name = course_name
-        self.dept_name = dept_name
-        self.credits = credits
-
-    def delete(self):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute('DELETE FROM COURSE WHERE course_name=%s',(self.course_name,))
-            conn.commit()
-            cur.close()
-        except:
-            raise Exception("connection error")
-
-    def update(self, new_course_name, new_dept_name, new_credits):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute('UPDATE COURSE SET (course_name, dept_name, credits) = (COALESCE(%s,%s), COALESCE(%s,%s), COALESCE(%s,%s)) WHERE course_name=%s', \
-            (new_course_name, AsIs('course_name'), new_dept_name, AsIs('dept_name'), new_credits, AsIs('credits'), self.course_name))
-            conn.commit()
-            cur.close()
-            if new_course_name:
-                self.course_name = new_course_name
-            if new_dept_name:
-                self.dept_name = new_dept_name
-            if new_credits:
-                self.credits = new_credits
-        except:
-            raise Exception("connection error")
-
-    def insert(self):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute('INSERT INTO COURSE (course_name, dept_name, credits) VALUES (%s, %s, %s)', (self.course_name, self.dept_name, self.credits))
-            conn.commit()
-            cur.close()
-        except:
-            raise Exception("connection error")
-
-    @staticmethod
-    def search(course_name, dept_name):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM DEPARTMENT WHERE course_name ILIKE %(course_name)s||'%%' AND dept_name ILIKE %(dept_name)s||'%%'", \
-                {'course_name': course_name,'dept_name': dept_name})
-            conn.commit()
-            data = cur.fetchall()
-            output = []
-            for d in data:
-                dept_name = d[1]
-                output.append(Department(dept_name=dept_name))
-            cur.close()
-            return output
-        except:
-            raise Exception("connection error")
-
-
-
-
-class Department:
-    def __init__(self, dept_name=None):
-        self.dept_name = dept_name
-    
-    def delete(self):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute('DELETE FROM DEPARTMENT WHERE dept_name=%s',(self.dept_name,))
-            conn.commit()
-            cur.close()
-        except:
-            raise Exception("connection error")
-
-    def update(self, new_name):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            print(self.dept_name, new_name)
-            cur.execute('UPDATE DEPARTMENT SET dept_name=%s WHERE dept_name=%s', (new_name, self.dept_name))
-            conn.commit()
-            cur.close()
-            self.dept_name = new_name
-        except:
-            raise Exception("connection error")
-
-    def insert(self):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute('INSERT INTO DEPARTMENT (dept_name) VALUES (%s)', (self.dept_name,))
-            conn.commit()
-            cur.close()
-        except:
-            raise Exception("connection error")
-
-    @staticmethod
-    def search(dept_name):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM DEPARTMENT WHERE dept_name ILIKE %(dept_name)s||'%%'", {'dept_name': dept_name})
-            conn.commit()
-            data = cur.fetchall()
-            output = []
-            for d in data:
-                dept_name = d[1]
-                output.append(Department(dept_name=dept_name))
-            cur.close()
-            return output
-        except:
-            raise Exception("connection error")
-
-
 class Program:
     def __init__(self, prog_name=None):
         self.prog_name = prog_name
@@ -186,6 +68,335 @@ class Program:
             raise Exception("connection error")
 
 
+class Department:
+    def __init__(self, dept_name=None):
+        self.dept_name = dept_name
+    
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM DEPARTMENT WHERE dept_name=%s',(self.dept_name,))
+            conn.commit()
+            data = cur.fetchone()
+            self.dept_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM DEPARTMENT WHERE dept_name=%s',(self.dept_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            print(self.dept_name, new_name)
+            cur.execute('UPDATE DEPARTMENT SET dept_name=%s WHERE dept_name=%s', (new_name, self.dept_name))
+            conn.commit()
+            cur.close()
+            self.dept_name = new_name
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO DEPARTMENT (dept_name) VALUES (%s)', (self.dept_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(dept_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM DEPARTMENT WHERE dept_name ILIKE %(dept_name)s||'%%'", {'dept_name': dept_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                dept_name = d[1]
+                output.append(Department(dept_name=dept_name))
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+
+
+class Course:
+    def __init__(self, course_name=None, dept_id=None, credits = None):
+        self.course_name = course_name
+        self.dept_id = dept_id
+        self.credits = credits
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM COURSE WHERE course_name=%s',(self.course_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_course_name, new_dept_id, new_credits):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE COURSE SET (course_name, dept_id, credits) = (%s, %s, %s) WHERE course_name=%s', \
+            (new_course_name, new_dept_id, new_credits, self.course_name))
+            conn.commit()
+            cur.close()
+            self.course_name = new_course_name
+            self.dept_id = new_dept_id
+            self.credits = new_credits
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO COURSE (course_name, dept_id, credits) VALUES (%s, %s, %s)', (self.course_name, self.dept_id, self.credits))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(course_name, dept_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            if dept_name != '':
+                cur.execute("SELECT * FROM COURSE LEFT JOIN DEPARTMENT USING (dept_id) WHERE course_name ILIKE %(course_name)s||'%%' AND dept_name ILIKE \
+                    %(dept_name)s||'%%'", {'course_name': course_name,'dept_name': dept_name})
+            else:
+                cur.execute("SELECT * FROM COURSE LEFT JOIN DEPARTMENT USING (dept_id) WHERE course_name ILIKE %(course_name)s||'%%'", \
+                    {'course_name': course_name,'dept_name': dept_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                course_name = d[2]
+                dept_id = d[0]
+                credits = d[4]
+                course = Course(course_name=course_name, dept_id=dept_id, credits=credits)
+                course.dept_name = d[5]
+                output.append(course)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+
+class Instructor:
+    def __init__(self, roll_num=None, instr_name=None, dept_id=None):
+        self.roll_num = roll_num
+        self.instr_name = instr_name
+        self.dept_id = dept_id
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM INSTRUCTOR WHERE roll_num=%s',(self.roll_num,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_roll_num, new_instr_name, new_dept_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE INSTRUCTOR SET (roll_num, instr_name, dept_id) = (%s, %s, %s) WHERE roll_num=%s', \
+            (new_roll_num, new_instr_name, new_dept_id, self.roll_num))
+            conn.commit()
+            cur.close()
+            self.roll_num = new_roll_num
+            self.instr_name = new_instr_name
+            self.dept_id = new_dept_id
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO INSTRUCTOR (roll_num, instr_name, dept_id) VALUES (%s, %s, %s)', (self.roll_num, self.instr_name, self.dept_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(roll_num, instr_name, dept_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            if dept_name != '':
+                cur.execute("SELECT * FROM INSTRUCTOR LEFT JOIN DEPARTMENT USING (dept_id) WHERE roll_num ILIKE %(roll_num)s||'%%'\
+                    AND instr_name ILIKE %(instr_name)s||'%%' AND dept_name ILIKE %(dept_name)s||'%%'", \
+                        {'roll_num': roll_num, 'instr_name': instr_name, 'dept_name': dept_name})
+            else:
+                cur.execute("SELECT * FROM INSTRUCTOR LEFT JOIN DEPARTMENT USING (dept_id) WHERE roll_num ILIKE %(roll_num)s||'%%' AND \
+                    instr_name ILIKE %(instr_name)s||'%%'", {'roll_num': roll_num, 'instr_name': instr_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                roll_num = d[2]
+                instr_name = d[3]
+                dept_id = d[0]
+                instr = Instructor(roll_num=roll_num, instr_name=instr_name, dept_id=dept_id)
+                instr.dept_name = d[4]
+                output.append(instr)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+
+class Semester:
+    def __init__(self, year=None, season=None):
+        self.year = year
+        self.season = season
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM SEMESTER WHERE year=%s AND season=%s',(self.year, self.season))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_year, new_season):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE SEMESTER SET (year, season) = (%s, %s) WHERE year=%s AND season=%s', \
+            (new_year, new_season, self.year, self.season))
+            conn.commit()
+            cur.close()
+            self.year = new_year
+            self.season = new_season
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO SEMESTER (year, season) VALUES (%s, %s)', (self.year, self.season))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(year, season):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM SEMESTER WHERE CAST(year as TEXT) ILIKE %(year)s||'%%' \
+                AND CAST(season as TEXT) ILIKE %(season)s||'%%'", {'year': year, 'season': season})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                year = d[1]
+                season = d[2]
+                sem = Semester(year=year, season=season)
+                output.append(sem)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+
+class Timeslot:
+    def __init__(self, time_slot_id=None, day=None, start_time=None, end_time=None):
+        self.time_slot_id = time_slot_id
+        self.day = day
+        self.start_time = start_time
+        self.end_time = end_time
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM TIMESLOT WHERE time_slot_id=%s AND day=%s AND start_time=%s AND end_time=%s',\
+                (self.time_slot_id, self.day, self.start_time, self.end_time))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_time_slot_id, new_day, new_start_time, new_end_time):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE TIMESLOT SET (time_slot_id, day, start_time, end_time) = (%s, %s, %s, %s) WHERE time_slot_id=%s AND \
+                day=%s AND start_time=%s AND end_time=%s', \
+            (new_time_slot_id, new_day, new_start_time, new_end_time, self.time_slot_id, self.day, self.start_time, self.end_time))
+            conn.commit()
+            cur.close()
+            self.time_slot_id = new_time_slot_id
+            self.day = new_day
+            self.start_time = new_start_time
+            self.end_time = new_end_time
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO TIMESLOT (time_slot_id, day, start_time, end_time) VALUES (%s, %s, %s, %s)', \
+                (self.time_slot_id, self.day, self.start_time, self.end_time))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(time_slot_id, day, start_time, end_time):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM TIMESLOT WHERE time_slot_id ILIKE %(time_slot_id)s||'%%' AND day ILIKE %(day)s||'%%'\
+                AND CAST(start_time AS TEXT) ILIKE %(start_time)s||'%%' AND CAST(end_time AS TEXT) ILIKE %(end_time)s||'%%'", \
+                    {'time_slot_id': time_slot_id,'day': day, 'start_time': start_time, 'end_time': end_time})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                time_slot_id = d[0]
+                day = d[1]
+                start_time = d[2].strftime('%H:%M')
+                end_time = d[3].strftime('%H:%M')
+                timeslot = Timeslot(time_slot_id=time_slot_id, day=day, start_time=start_time, end_time=end_time)
+                output.append(timeslot)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
 
 class Student:
     def __init__(self, roll_num=None, name=None, year=None, program_id=None, cpi=None, tot_credits=None, dept_id=None):
@@ -204,6 +415,7 @@ class Student:
             cur.execute('SELECT * FROM STUDENT WHERE roll_num=%s', (self.roll_num,))
             conn.commit()
             data = cur.fetchone()
+            print(data)
             self.name, self.year, self.program_id, self.cpi, self.tot_credits, self.dept_id = data[2:]
             cur.close()
         except:
