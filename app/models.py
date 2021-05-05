@@ -6,7 +6,7 @@ from psycopg2.extensions import AsIs
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="!Bwsl123",
+                                      password="postgres",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
@@ -240,5 +240,105 @@ class Student:
             data = cur.fetchall()
             cur.close()
             return data
+        except:
+            raise Exception("connection error")
+
+class Tag:
+    def __init__(self, tag_name=None):
+        self.tag_name = tag_name
+    
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM TAGS WHERE tag_name=%s',(self.tag_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE TAGS SET tag_name=%s WHERE tag_name=%s', (new_name, self.tag_name))
+            conn.commit()
+            cur.close()
+            self.tag_name = new_name
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO TAGS (tag_name) VALUES (%s)', (self.tag_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(tag_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM TAGS WHERE tag_name ILIKE %(tag_name)s||'%%'", {'tag_name': tag_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                tag_name = d[1]
+                output.append(Tag(tag_name=tag_name))
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+class Course_tags:
+    def __init__(self, course_id=None):
+        self.course_id = course_id
+    def get_tags(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT tag_name FROM TAGS NATURAL JOIN COURSE_TAGS WHERE course_id=%s',(self.course_id,))
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                tag_name = d[0]
+                output.append(Tag(tag_name=tag_name))
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+    def get_name(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT course_name FROM COURSE WHERE course_id=%s',(self.course_id,))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data[0][0]
+        except:
+            raise Exception("connection error")
+    def remove_tag(self, tag_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM COURSE_TAGS WHERE course_id=%s AND tag_id = (SELECT tag_id FROM TAGS WHERE tag_name=%s)',(self.course_id,tag_name))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+    def add_tag(self, tag_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO COURSE_TAGS(course_id, tag_id) VALUES (%s, (SELECT tag_id FROM TAGS WHERE tag_name=%s))', (self.course_id,tag_name))
+            conn.commit()
+            cur.close()
         except:
             raise Exception("connection error")
