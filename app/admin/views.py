@@ -288,10 +288,6 @@ def admin_timeslot(request):
     return render(request, 'admin/timeslot.html', context)
 
 
-
-@user_passes_test(is_admin)
-def admin_test(request):
-    return render(request, 'admin/test.html')
 @user_passes_test(is_admin)
 def admin_tags(request):
     error = ''
@@ -325,6 +321,7 @@ def admin_tags(request):
 
     context['error'] = error 
     return render(request, 'admin/tags.html', context)
+
 
 @user_passes_test(is_admin)
 def admin_course_tags(request):
@@ -371,3 +368,8 @@ def admin_course_tags(request):
 
     context['error'] = error 
     return render(request, 'admin/course_tags.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_test(request):
+    return render(request, 'admin/test.html')
