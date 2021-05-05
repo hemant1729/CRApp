@@ -6,7 +6,7 @@ from psycopg2.extensions import AsIs
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="postgres",
+                                      password="!Bwsl123",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
@@ -195,6 +195,7 @@ class Course:
                 credits = d[4]
                 course = Course(course_name=course_name, dept_id=dept_id, credits=credits)
                 course.dept_name = d[5]
+                course.course_id = d[1]
                 output.append(course)
             cur.close()
             return output

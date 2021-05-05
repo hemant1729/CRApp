@@ -12,6 +12,7 @@
         {% csrf_token %}
         <p>Course Name: <input type="text" name="course_name"></p>
         <p>Dept Name: <input type="text" name="dept_name"></p>
+        <p>Credits: <input type="text" name="credits"></p>
         <p><input type="submit" name="add" value="add"></p>
         <p><input type="submit" name="search" value="search"></p>
 
@@ -26,6 +27,7 @@
                     <th> Credits </th>
                     <th> Update </th>
                     <th> Delete </th>
+                    <th> Tags</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +39,7 @@
                 <td> <input type="text" value='{{i.2}}' name='updated_credits'> </td>
                 <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.0}}' name='update_list'></td>
                 <td> <input type='checkbox' value='{{i.0}}' name='delete_list'></td>
+                <td> <a href='/admin/course_tags/?course_id={{i.3}}'> Modify tags </a></td>
             </tr>
             {% endfor %}
             </tbody>

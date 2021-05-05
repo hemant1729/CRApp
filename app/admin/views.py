@@ -102,7 +102,7 @@ def admin_course(request):
                 course_name = data['course_name']
                 dept_name = data['dept_name']
                 course_list = Course.search(course_name, dept_name)
-                course_names = [[c.course_name, '' if c.dept_name is None else c.dept_name, '' if c.credits is None else c.credits] for c in course_list]
+                course_names = [[c.course_name, '' if c.dept_name is None else c.dept_name, '' if c.credits is None else c.credits, c.course_id] for c in course_list]
                 context['course_names'] = course_names
             elif 'update' in data:
                 #delete has more priority 
@@ -343,7 +343,6 @@ def admin_course_tags(request):
     context = {}
     if request.method == 'POST':
         data = request.POST
-        print(data)
         try:
             context['course_name'] = data['course_name']
             context['course_id'] = data['course_id']
