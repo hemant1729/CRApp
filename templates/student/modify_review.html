@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Grade: <input type="text" name="grade_name" value="{{review.grade_name}}"></p>
+        <p>num_quiz: <input type="number" name="num_quiz" value="{{review.num_quiz}}"></p>
+        <p>num_assgn: <input type="number" name="num_assgn" value="{{review.num_assgn}}"></p>
+        <p>exam_toughness: <input type="number" name="exam_toughness" value="{{review.exam_toughness}}"></p>
+        <p>assgn_toughness: <input type="number" name="assgn_toughness" value="{{review.assgn_toughness}}"></p>
+        <p>overall_feel: <input type="number" name="overall_feel" value="{{review.overall_feel}}"></p>
+        <p>project: <input type="number" name="project" value="{{review.project}}"></p>
+        <p>project details: <input type="text" name="project_details" value="{{review.project_description}}"></p>
+        <p>teacher review: <input type="text" name="teacher_review" value="{{review.teacher_review}}"></p>
+        <p>help availability: <input type="number" name="help_availability" value="{{review.help_availability}}"></p>
+        <p>working hours per week: <input type="number" name="working_hours" value="{{review.working_hours}}"></p>
+        <p>team size: <input type="number" name="team_size" value="{{review.team_size}}"></p>
+        <p>followup course name: <input type="text" name="followup_course_name" value="{{review.followup_course_name}}"></p>
+        <p><input type="submit" name="modify" value="modify"></p>
+        <p><input type="submit" name="delete" value="delete"></p>
+        <p><input type="hidden" name="take_id" value="{{review.take_id}}"></p>
+    </form>
+</body>
+</html>

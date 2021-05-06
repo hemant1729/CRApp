@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+
+        {% if reviews %}
+            {% for r in reviews %}
+                <h3>{{r.student_name}} </h3>
+                {{r.student_roll_num}}
+
+                {{r.instr_name}}
+                {{r.year}}
+                {{r.season}}
+
+                {{r.num_quiz}}
+                {{r.num_assgn}}
+                {{r.exam_toughness}} 
+                {{r.assng_toughness}} 
+                {{r.overall_feel}} 
+                {{r.project}} 
+                {{r.project_desc}}
+                {{r.teacher_review}} 
+                {{r.help_availability}}
+                {{r.working_hours}}
+                {{r.team_size}}
+                {{r.followup_course_name}}
+            {% endfor %}
+
+        {% else %}
+        <p> <h3> no reviews available </h3> </p>
+        {% endif %}
+
+    </form>
+</body>
+</html>

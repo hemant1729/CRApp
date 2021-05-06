@@ -110,7 +110,6 @@ class Department:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            print(self.dept_name, new_name)
             cur.execute('UPDATE DEPARTMENT SET dept_name=%s WHERE dept_name=%s', (new_name, self.dept_name))
             conn.commit()
             cur.close()
@@ -162,6 +161,21 @@ class Course:
             conn.commit()
             data = cur.fetchone()
             self.course_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def fill_id(self, course_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM COURSE WHERE course_id=%s',(course_id,))
+            conn.commit()
+            data = cur.fetchone()
+            self.course_id = data[0]
+            self.course_name = data[1]
+            self.dept_id = data[2]
+            self.credits = data[3]
             cur.close()
         except:
             raise Exception("connection error")
@@ -513,6 +527,31 @@ class Student:
         except:
             raise Exception("connection error")
 
+    def get_takes(self, course_name, sem_year, sem_season, instr_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM TAKES NATURAL JOIN ((COURSE_SEMESTER NATURAL JOIN COURSE NATURAL JOIN SEMESTER) INNER JOIN INSTRUCTOR USING (instructor_id))\
+                 WHERE student_id=%(student_id)s AND course_name ILIKE %(course_name)s||'%%' AND CAST(year AS TEXT) ILIKE %(year)s||'%%' \
+                     AND CAST(season AS TEXT) ILIKE %(season)s||'%%' AND instr_name ILIKE '%%'||%(instr_name)s||'%%'", \
+                         {'student_id':self.student_id, 'course_name': course_name, 'year': sem_year, 'season': sem_season, 'instr_name': instr_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                course_semester = Course_semester(course_id=d[1], sem_id=d[0], instructor_id=d[2])
+                course_semester.course_name = d[16]
+                course_semester.year = d[20]
+                course_semester.season = d[21]
+                course_semester.instr_roll_num = d[22]
+                course_semester.instr_name = d[23]
+                course_semester.take_id = d[3]
+                output.append(course_semester)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
     @staticmethod
     def search():
         try:
@@ -617,6 +656,7 @@ class Course_tags:
             cur.close()
         except:
             raise Exception("connection error")
+
     def add_tag(self, tag_name):
         try:
             conn = get_connection()
@@ -671,6 +711,97 @@ class Course_semester:
         except:
             raise Exception("connection error")
 
+    def get_reviews(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * REVIEW WHERE sem_id=%s AND course_id=%s AND instructor_id=%s', (self.sem_id, self.course_id, self.instructor_id))
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+
+                output.append()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(course_name, sem_year, sem_season, instr_roll_num, instr_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (COURSE_SEMESTER NATURAL JOIN COURSE NATURAL JOIN SEMESTER) INNER JOIN INSTRUCTOR USING (instructor_id)\
+                 WHERE course_name ILIKE %(course_name)s||'%%' AND CAST(year AS TEXT) ILIKE %(year)s||'%%' \
+                     AND CAST(season AS TEXT) ILIKE %(season)s||'%%' AND roll_num ILIKE %(roll_num)s||'%%' AND instr_name ILIKE '%%'||%(instr_name)s||'%%'", \
+                         {'course_name': course_name, 'year': sem_year, 'season': sem_season, 'roll_num': instr_roll_num, 'instr_name': instr_name})
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                course_id = d[2]
+                sem_id = d[1]
+                instructor_id = d[0]
+                course_semester = Course_semester(course_id=course_id, sem_id=sem_id, instructor_id=instructor_id)
+                course_semester.course_name = d[14]
+                course_semester.year = d[18]
+                course_semester.season = d[19]
+                course_semester.roll_number = d[20]
+                course_semester.instr_name = d[21]
+                output.append(course_semester)
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+
+class Takes:
+    def __init__(self, student_id=None, course_id=None, sem_id=None,instructor_id=None, take_id=None):
+        self.student_id = student_id
+        self.sem_id = sem_id
+        self.course_id = course_id
+        self.instructor_id = instructor_id
+        self.take_id = take_id
+
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM TAKES NATURAL JOIN STUDENT WHERE take_id=%s', (self.take_id))
+            conn.commit()
+            data = cur.fetchone()
+            if data is not None:
+                self.student_id = data[0]
+                self.sem_id = data[2]
+                self.course_id = data[3]
+                self.instructor_id = data[4]
+                self.roll_num = data[5]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM TAKES WHERE student_id=%s AND sem_id=%s AND course_id=%s AND instructor_id=%s',\
+                (self.student_id, self.sem_id, self.course_id, self.instructor_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO TAKES (student_id, sem_id, course_id, instructor_id) VALUES (%s, %s, %s, %s)', \
+                (self.student_id, self.sem_id, self.course_id, self.instructor_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
     @staticmethod
     def search(course_name, sem_year, sem_season, instr_roll_num):
         try:
@@ -697,9 +828,12 @@ class Course_semester:
             return output
         except:
             raise Exception("connection error")
+
+
 class Interests:
     def __init__(self, student_id=None):
         self.student_id = student_id
+
     def get_tags(self):
         try:
             conn = get_connection()
@@ -715,6 +849,7 @@ class Interests:
             return output
         except:
             raise Exception("connection error")
+
     def remove_tag(self, tag_name):
         try:
             conn = get_connection()
@@ -724,12 +859,215 @@ class Interests:
             cur.close()
         except:
             raise Exception("connection error")
+
     def add_tag(self, tag_name):
         try:
             conn = get_connection()
             cur = conn.cursor()
             cur.execute('INSERT INTO INTERESTS(student_id, tag_id) VALUES (%s, (SELECT tag_id FROM TAGS WHERE tag_name=%s))', (self.student_id,tag_name))
             conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+
+class Grade:
+    def __init__(self, grade_name=None, value=None):
+        self.grade_name = grade_name
+        self.value = value
+
+    def fill(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT grade_id FROM GRADE WHERE grade_name=%s',(self.grade_name,))
+            conn.commit()
+            data = cur.fetchone()
+            self.grade_id = data[0]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM GRADE WHERE grade_name=%s',(self.grade_name,))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_grade_name, new_grade_value):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE GRADE SET (grade_name, value) = (%s, %s) WHERE grade_name=%s', \
+            (new_grade_name, new_grade_value, self.grade_name))
+            conn.commit()
+            cur.close()
+            self.grade_name = new_grade_name
+            self.grade_value = new_grade_value
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO GRADE (grade_name, value) VALUES (%s, %s)', (self.grade_name, self.value))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def get_all():
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM GRADE")
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+
+class Review:
+    def __init__(self, take_id=None):
+        self.take_id = take_id
+
+    def delete(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM REVIEW WHERE take_id=%s' ,(self.take_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO REVIEW (take_id, project_desc, teacher_review) VALUES (%s, %s, %s)', (self.take_id, "", ""))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def insert_data(self, grade_id, num_quiz, num_assgn, exam_toughness, assgn_toughness, overall_feel, project, project_desc, teacher_review, help_availability, working_hours, team_size, followup_course_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE REVIEW SET (grade_id, num_quiz, num_assgn, exam_toughness, assgn_toughness, overall_feel, project, \
+                project_desc, teacher_review, help_availability, working_hours, team_size, followup_course_id) = (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) \
+                    WHERE take_id=%s',  (grade_id, num_quiz, num_assgn, exam_toughness, assgn_toughness, overall_feel, project, project_desc, \
+                        teacher_review, help_availability, working_hours, team_size, followup_course_id, self.take_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(take_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (((REVIEW NATURAL JOIN TAKES) LEFT JOIN GRADE USING (grade_id))) WHERE take_id=%s", (take_id))
+            conn.commit()
+            data = cur.fetchall()
+            output = None
+            if len(data)>0:
+                data=data[0]
+                output = Review(take_id=take_id)
+                output.grade_id = data[0]
+                output.num_quiz = data[2]
+                output.num_assgn = data[3]
+                output.exam_toughness = data[4]
+                output.assgn_toughness = data[5]
+                output.overall_feel = data[6]
+                output.project = data[7]
+                output.project_description = data[8]
+                output.teacher_review = data[9]
+                output.help_availability = data[10]
+                output.working_hours = data[11]
+                output.team_size = data[12]
+                output.followup_course_id = data[13]
+                output.grade_name = data[18]
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(take_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (((REVIEW NATURAL JOIN TAKES) LEFT JOIN GRADE USING (grade_id))) WHERE take_id=%s", (take_id))
+            conn.commit()
+            data = cur.fetchall()
+            output = None
+            if len(data)>0:
+                data=data[0]
+                output = Review(take_id=take_id)
+                output.grade_id = data[0]
+                output.num_quiz = data[2]
+                output.num_assgn = data[3]
+                output.exam_toughness = data[4]
+                output.assgn_toughness = data[5]
+                output.overall_feel = data[6]
+                output.project = data[7]
+                output.project_description = data[8]
+                output.teacher_review = data[9]
+                output.help_availability = data[10]
+                output.working_hours = data[11]
+                output.team_size = data[12]
+                output.followup_course_id = data[13]
+                output.grade_name = data[18]
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search_all(course_id, sem_id, instructor_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (((((REVIEW INNER JOIN TAKES USING (take_id)) INNER JOIN COURSE USING (course_id)) \
+                INNER JOIN INSTRUCTOR USING (instructor_id)) INNER JOIN SEMESTER USING(sem_id)) INNER JOIN STUDENT USING (student_id)) WHERE \
+                    course_id=%s AND sem_id=%s AND instructor_id=%s", (course_id, sem_id, instructor_id))
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                review = Review()
+                review.num_quiz = d[6]
+                review.num_assgn = d[7]
+                review.exam_toughness = d[8]
+                review.assng_toughness = d[9]
+                review.overall_feel = d[10]
+                review.project = d[11]
+                review.project_desc = d[12]
+                review.teacher_review = d[13]
+                review.help_availability = d[14]
+                review.working_hours = d[15]
+                review.team_size = d[16]
+                review.followup_course_id = d[17]
+
+                review.instr_name = d[23]
+                review.year = d[25]
+                review.season = d[26]
+                review.student_roll_num = d[27]
+                review.student_name = d[28]
+                output.append(review)
+
+            return output
             cur.close()
         except:
             raise Exception("connection error")

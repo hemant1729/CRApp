@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import user_passes_test
 from ..models import *
@@ -402,7 +402,7 @@ def admin_course_sem(request):
                 sem_season = data['sem_season']
                 roll_num = data['roll_num']
 
-                course_sem_list = Course_semester.search(course_name, sem_year, sem_season, roll_num)
+                course_sem_list = Course_semester.search(course_name, sem_year, sem_season, roll_num, '')
                 course_sem_names = [[c.course_name, c.year, c.season, c.roll_number, c.course_id, c.sem_id, c.instructor_id] for c in course_sem_list]
                 context['course_sem_names'] = course_sem_names
             elif 'update' in data:
@@ -439,6 +439,38 @@ def admin_course_sem(request):
 
     context['error'] = error 
     return render(request, 'admin/course_sem.html', context)
+
+
+@user_passes_test(is_admin)
+def admin_grade(request):
+    error = ''
+    context = {}
+    if request.method == 'POST': 
+        data = request.POST
+        try:
+            if 'add' in data:
+                grade_name = data['grade_name']
+                value = data['value']
+                grade = Grade(grade_name, value)
+                grade.insert()
+            elif 'update' in data:
+                #delete has more priority 
+                for d in data.getlist('delete_list'):
+                    grade = Grade(d)
+                    grade.delete()
+                for u in data.getlist('update_list'):
+                    uid, uname = u.split(':')
+                    if uname in data.getlist('delete_list'):
+                        continue
+                    grade = Grade(uname)
+                    grade.update(data.getlist('updated_names')[int(uid)],data.getlist('updated_values')[int(uid)])
+        except:
+            error = 'DB error'
+
+    all_grades = Grade.get_all()
+    context['grade_names'] = all_grades
+    context['error'] = error 
+    return render(request, 'admin/grade.html', context)
 
 
 @user_passes_test(is_admin)

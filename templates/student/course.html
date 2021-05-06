@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>{{ course_name }}</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <h2>Already Done:</h2>
+        <p>Course Name: <input type="text" name="course_name"></p>
+        <p>Year: <input type="text" name="year"></p>
+        <p>Season: <input type="text" name="season"></p>
+        <p>Instr Name: <input type="text" name="instr_name"></p>
+        <p><input type="submit" name="search" value="search"></p>
+
+        {% if takes %}
+            <b> Course Year Season Instr_name delete</b>
+            {% for t in takes %}
+                <p>{{t.course_name}} {{t.year}} {{t.season}} {{t.instr_name}}
+                <input type='checkbox' value='{{t.course_id}}:{{t.sem_id}}:{{t.instructor_id}}' name='delete_list'>
+                <a href='/student/reviews/?take_id={{t.take_id}}'> add/modify reviews</a>
+                </p>
+            {% endfor %}
+        {% endif %}
+
+        <h2>New courses:</h2>
+        <p>Course Name: <input type="text" name="new_course_name"></p>
+        <p>Year: <input type="text" name="new_year"></p>
+        <p>Season: <input type="text" name="new_season"></p>
+        <p>Instr Name: <input type="text" name="new_instr_name"></p>
+        <p><input type="submit" name="new_search" value="new_search"></p>
+
+        {% if new_courses %}
+            <b> Course Year Season Instr_name add</b>
+            {% for c in new_courses %}
+                <p>{{c.course_name}} {{c.year}} {{c.season}} {{c.instr_name}}
+                <td> <input type='checkbox' value='{{c.course_id}}:{{c.sem_id}}:{{c.instructor_id}}' name='update_list'></td>
+                <a href='/view_reviews/?course_id={{c.course_id}}&sem_id={{c.sem_id}}&instructor_id={{c.instructor_id}}'> view reviews</a>
+                </p>
+            {% endfor %}
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+
+
+    </form>
+</body>
+</html>

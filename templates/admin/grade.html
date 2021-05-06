@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Grade</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Name: <input type="text" name="grade_name"></p>
+        <p>Value: <input type="text" name="value"></p>
+        <p><input type="submit" name="add" value="add"></p>
+
+        {% if grade_names %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Name </th>
+                    <th> Value </th>
+                    <th> Update </th>
+                    <th> Delete </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in grade_names %} 
+            <tr>
+                <td> {{i.1}} {{i.2}} </td>
+                <td> <input type="text" value='{{i.1}}' name='updated_names' required> </td>
+                <td> <input type="text" value='{{i.2}}' name='updated_values' required> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.1}}' name='update_list'></td>
+                <td> <input type='checkbox' value='{{i.1}}' name='delete_list'></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+    </form>
+</body>
+</html>
