@@ -17,4 +17,5 @@ urlpatterns = [
     path('admin/course_tags/', views.admin_course_tags),
     path('admin/course_sem/', views.admin_course_sem),
     path('student/', views.student_home),
+    path('student/interests/', views.student_interests),
 ]
