@@ -697,4 +697,39 @@ class Course_semester:
             return output
         except:
             raise Exception("connection error")
-
+class Interests:
+    def __init__(self, student_id=None):
+        self.student_id = student_id
+    def get_tags(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT tag_name FROM TAGS NATURAL JOIN INTERESTS WHERE student_id=%s',(self.student_id,))
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                tag_name = d[0]
+                output.append(Tag(tag_name=tag_name))
+            cur.close()
+            return output
+        except:
+            raise Exception("connection error")
+    def remove_tag(self, tag_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('DELETE FROM INTERESTS WHERE student_id=%s AND tag_id = (SELECT tag_id FROM TAGS WHERE tag_name=%s)',(self.student_id,tag_name))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+    def add_tag(self, tag_name):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO INTERESTS(student_id, tag_id) VALUES (%s, (SELECT tag_id FROM TAGS WHERE tag_name=%s))', (self.student_id,tag_name))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
