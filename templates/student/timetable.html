@@ -1,9 +1,27 @@
-<table>
-	{% for i in table %}
-	<tr>
-		{% for j in i %}
-			<td> {{j}} </td>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+	<h3>{{error}}</h3>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>Year: <input type='text' value='{{year}}' name='year'></p>
+        <p>Season: <input type='text' value='{{season}}' name='season'></p>
+        <p><input type="submit" name="update" value="update"></p>
+	</form>
+
+
+	<table>
+		{% for i in table %}
+		<tr>
+			{% for j in i %}
+				<td> {{j}} </td>
+			{% endfor %}
+		</tr>
 		{% endfor %}
-	</tr>
-	{% endfor %}
-</table>
+	</table>
+</body>

@@ -232,13 +232,31 @@ def student_interests(request):
 
 
 @login_required(login_url='/')
-def student_test(request):
-    return render(request, 'student/test.html')
-
-@login_required(login_url='/')
 def student_timetable(request):
     student = Student(request.user.username)
     student.fill()
+    context = {}
+    error = ''
+    try:
+        if request.method == 'POST':
+            data = request.POST
+            year = data['year']
+            season = data['season']
+            student_sem = Student_sem(student_id=student.student_id)
+            sem = Semester(year, season)
+            sem.fill()
+            student_sem.update(sem.sem_id)
+    except:
+        error = 'DB error'
+
+    student_sem = Student_sem(student_id=student.student_id)
+    year, season = student_sem.get_year_season()
+    if year == "Doesn't exist":
+        student_sem.insert()
+    elif year is not None:
+        context['year']=year
+        context['season']=season
+
     timetable = Timetable(student.student_id).get_timetable()
     table = {}
     timeslots = []
@@ -259,9 +277,10 @@ def student_timetable(request):
         for timeslot in timeslots:
             cur.append(table[(day, timeslot)])
         out.append(cur)
-    context = {}
     context['table'] = out
+    context['error'] = error
     return render(request, 'student/timetable.html', context)
+
 
 @login_required(login_url='/')
 def student_recommender(request):
@@ -382,3 +401,7 @@ def instructor_home(request):
         else:
             context['rating'] = 'No reviews available for this instructor currently'
         return render(request, 'student/instructor.html', context)
+
+@login_required(login_url='/')
+def student_test(request):
+    return render(request, 'student/test.html')

@@ -1154,6 +1154,51 @@ class Review:
         except:
             raise Exception("conncection error")
 
+class Student_sem:
+    def __init__(self, student_id=None, sem_id=None):
+        self.student_id = student_id
+        self.sem_id = sem_id
+
+    def get_year_season(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT year, season FROM STUDENT_SEM LEFT JOIN SEMESTER USING (sem_id) WHERE student_id=%s', (self.student_id,))
+            conn.commit()
+            data = cur.fetchall()
+            if len(data)==0:
+                return "Doesn't exist", None
+            else:
+                return data[0][0], data[0][1]
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, new_sem_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE STUDENT_SEM SET sem_id = %s WHERE student_id=%s', \
+            (new_sem_id, self.student_id))
+            conn.commit()
+            cur.close()
+            self.sem_id = new_sem_id
+        except:
+            raise Exception("connection error")
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('INSERT INTO STUDENT_SEM (student_id, sem_id) VALUES (%s, %s)', (self.student_id, self.sem_id))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+
+
+
 class Timetable:
     def __init__(self, student_id=None):
         self.student_id = student_id
