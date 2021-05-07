@@ -207,25 +207,25 @@ def student_interests(request):
     context = {}
     if request.method == 'POST':
         data = request.POST
-        #try:
-        if 'search' in data:
-            tag_name = data['tag_name']
-            tag_list = Tag.search(tag_name)
-            tag_names = [d.tag_name for d in tag_list]
-            context['tag_names'] = tag_names
-        elif 'update' in data:
+        try:
+            if 'search' in data:
+                tag_name = data['tag_name']
+                tag_list = Tag.search(tag_name)
+                tag_names = [d.tag_name for d in tag_list]
+                context['tag_names'] = tag_names
+            elif 'update' in data:
+                interests = Interests(student.student_id)
+                for d in data.getlist('delete_list'):
+                    interests.remove_tag(d)
+                for a in data.getlist('add_list'):
+                    interests.add_tag(a)
+                update_student_tag_weights(student.student_id, {}, {})
             interests = Interests(student.student_id)
-            for d in data.getlist('delete_list'):
-                interests.remove_tag(d)
-            for a in data.getlist('add_list'):
-                interests.add_tag(a)
-            update_student_tag_weights(student.student_id, {}, {})
-        interests = Interests(student.student_id)
-        tag_list = interests.get_tags()
-        tag_names = [d.tag_name for d in tag_list]
-        context['student_tag_names'] = tag_names
-        #except:
-        #    error = 'DB error'
+            tag_list = interests.get_tags()
+            tag_names = [d.tag_name for d in tag_list]
+            context['student_tag_names'] = tag_names
+        except:
+            error = 'DB error'
     context['error'] = error 
     return render(request, 'student/interests.html', context)
 

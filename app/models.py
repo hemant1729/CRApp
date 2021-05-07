@@ -7,7 +7,7 @@ from app.recommender.models import *
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="!Bwsl123",
+                                      password="postgres",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
@@ -700,10 +700,11 @@ class Course_tags:
 
 
 class Course_semester:
-    def __init__(self, course_id=None, sem_id=None, instructor_id=None):
+    def __init__(self, course_id=None, sem_id=None, instructor_id=None, time_slot_id=None):
         self.course_id = course_id
         self.sem_id = sem_id
         self.instructor_id = instructor_id
+        self.time_slot_id = time_slot_id
 
     def delete(self):
         try:
@@ -716,18 +717,19 @@ class Course_semester:
         except:
             raise Exception("connection error")
 
-    def update(self, new_course_id, new_sem_id, new_instructor_id):
+    def update(self, new_course_id, new_sem_id, new_instructor_id, new_time_slot_id):
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('UPDATE COURSE_SEMESTER SET (course_id, sem_id, instructor_id) = (%s, %s, %s) WHERE course_id=%s AND \
+            cur.execute('UPDATE COURSE_SEMESTER SET (course_id, sem_id, instructor_id, time_slot_id) = (%s, %s, %s, %s) WHERE course_id=%s AND \
                 sem_id=%s AND instructor_id=%s', \
-            (new_course_id, new_sem_id, new_instructor_id, self.course_id, self.sem_id, self.instructor_id))
+            (new_course_id, new_sem_id, new_instructor_id, new_time_slot_id, self.course_id, self.sem_id, self.instructor_id))
             conn.commit()
             cur.close()
             self.course_id = new_course_id
             self.sem_id = new_sem_id
             self.instructor_id = new_instructor_id
+            self.time_slot_id = new_time_slot_id
         except:
             raise Exception("connection error")
 
@@ -735,8 +737,8 @@ class Course_semester:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('INSERT INTO COURSE_SEMESTER (course_id, sem_id, instructor_id) VALUES (%s, %s, %s)', \
-                (self.course_id, self.sem_id, self.instructor_id))
+            cur.execute('INSERT INTO COURSE_SEMESTER (course_id, sem_id, instructor_id, time_slot_id) VALUES (%s, %s, %s, %s)', \
+                (self.course_id, self.sem_id, self.instructor_id, self.time_slot_id))
             conn.commit()
             cur.close()
         except:
@@ -780,6 +782,7 @@ class Course_semester:
                 course_semester.season = d[19]
                 course_semester.roll_number = d[20]
                 course_semester.instr_name = d[21]
+                course_semester.time_slot_id = d[3]
 
                 course_semester.num_quiz = d[5]
                 course_semester.num_assgn = d[6]

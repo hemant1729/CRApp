@@ -393,7 +393,9 @@ def admin_course_sem(request):
                 instructor.fill()
                 instructor_id = instructor.instructor_id
 
-                course_sem = Course_semester(course_id, sem_id, instructor_id)
+                time_slot_id = data['time_slot_id']
+
+                course_sem = Course_semester(course_id, sem_id, instructor_id, time_slot_id)
                 course_sem.insert()
 
             elif 'search' in data:
@@ -403,7 +405,7 @@ def admin_course_sem(request):
                 roll_num = data['roll_num']
 
                 course_sem_list = Course_semester.search(course_name, sem_year, sem_season, roll_num, '')
-                course_sem_names = [[c.course_name, c.year, c.season, c.roll_number, c.course_id, c.sem_id, c.instructor_id] for c in course_sem_list]
+                course_sem_names = [[c.course_name, c.year, c.season, c.roll_number, c.time_slot_id, c.course_id, c.sem_id, c.instructor_id] for c in course_sem_list]
                 context['course_sem_names'] = course_sem_names
             elif 'update' in data:
                 #delete has more priority 
@@ -421,6 +423,7 @@ def admin_course_sem(request):
                     new_year = data.getlist('updated_years')[int(uid)]
                     new_season = data.getlist('updated_seasons')[int(uid)]
                     new_roll_num = data.getlist('updated_roll_numbers')[int(uid)]
+                    new_time_slot_id = data.getlist('updated_time_slot_ids')[int(uid)]
 
                     new_course = Course(course_name=new_course_name)
                     new_course.fill()
@@ -433,7 +436,7 @@ def admin_course_sem(request):
                     new_instructor = Instructor(roll_num=new_roll_num)
                     new_instructor.fill()
                     new_instructor_id = new_instructor.instructor_id
-                    course_sem.update(new_course_id, new_sem_id, new_instructor_id)
+                    course_sem.update(new_course_id, new_sem_id, new_instructor_id, new_time_slot_id)
         except:
             error = 'DB error'
 

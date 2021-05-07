@@ -6,7 +6,7 @@ import statistics
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="!Bwsl123",
+                                      password="postgres",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
