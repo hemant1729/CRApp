@@ -3,40 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <title>CRApp</title>
+    <style>
+        html {
+        box-sizing: border-box;
+        }
+
+        *, *:before, *:after {
+        box-sizing: inherit;
+        }
+
+        .column {
+        float: left;
+        width: 33.3%;
+        margin-bottom: 16px;
+        padding: 0 8px;
+        }
+
+        @media screen and (max-width: 650px) {
+        .column {
+            width: 100%;
+            display: block;
+        }
+        }
+
+        .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+        padding: 0 16px;
+        }
+
+        .container::after, .row::after {
+        content: "";
+        clear: both;
+        display: table;
+        }
+
+        .title {
+        color: grey;
+        }
+
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+         button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            margin: 50px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-size: 16px;
+        }
+        input[type=submit] {
+                border: none;
+                color: black;
+                padding: 14px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                input[type=text], select {
+                    width: 50%;
+                    padding: 12px 20px;
+                    margin: 8px;
+                    display: inline-block;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    }
+
+                    input[type=submit]:hover {
+                    background-color: #45a049;
+                    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            th, td {
+            text-align: left;
+            padding: 8px;
+            max-width: 10px;
+            overflow-wrap: break-word;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+            background-color: #4CAF50;
+            color: white;
+            }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <button style="position: absolute;
+    top: 8px;
+    right: 150px;" onclick="location.href='/student/courses'" type="button">Back </button>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <ul>
+        <li><a href="/student/">Profile</a></li>
+        <li class="active"><a href="/student/courses">Courses</a></li>
+        <li><a href="/student/interests">Interests</a></li>
+        <li><a href="/student/timetable">Timetable</a></li>
+        <li><a href="/student/recommender">Recommender</a></li>
+        <li><a href="/student/issues">Issues</a></li>
+        <li><a href="/student/messages">Messaging</a></li>
+    </ul>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Reviews</h2>
     <h3> {{ error }} </h3>
+    <h2>Tags: 
+    {% for t in tags %}
+    {{ t.tag_name }}
+    {% endfor %}
+</h2>
     <form method="post">
         {% csrf_token %}
-
         {% if reviews %}
-            {% for r in reviews %}
-                <h3>{{r.student_name}} </h3>
-                {{course_name}}
-                {{r.student_roll_num}}
-
-                {{r.instr_name}}
-                {{r.year}}
-                {{r.season}}
-
-                {{r.num_quiz}}
-                {{r.num_assgn}}
-                {{r.exam_toughness}} 
-                {{r.assng_toughness}} 
-                {{r.overall_feel}} 
-                {{r.project}} 
-                {{r.project_desc}}
-                {{r.teacher_review}} 
-                {{r.help_availability}}
-                {{r.working_hours}}
-                {{r.team_size}}
-                {{r.followup_course_name}}
-            {% endfor %}
-
+        <div class="row">
+                    {% for r in reviews %}
+                        <div class="column">
+                            <div class="card">
+                            <div class="container">
+                                <h2>{{r.student_name}}</h2>
+                                {% if r.season == 0 %}
+                                    <p class="title">{{r.year}} Spring</p>
+                                {% else %}
+                                    <p class="title">{{r.year}} Autumn</p>
+                                {% endif %}
+                                <table>
+                                    <tr >
+                                      <th>Instructor</th>
+                                      <td> {{r.instr_name}}</td>
+                                    </tr>
+                                    <tr>
+                                      <th>No.of Quizzes</th>
+                                      <td>{{r.num_quiz}}</td>
+                                    </tr>
+                                    <tr>
+                                      <th>No.of Assignments</th>
+                                      <td>{{r.num_assgn}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Exam Toughness</th>
+                                        <td>{{r.exam_toughness}}/10</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Assignment Toughness</th>
+                                        <td>{{r.assng_toughness}}/10</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Overall Rating</th>
+                                        <td>{{r.overall_feel}}/10</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Project</th>
+                                        {% if r.project == "1" %}
+                                            <td>Yes</td>
+                                        {% else %}
+                                            <td>No</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <th>Project Details</th>
+                                        <td>{{r.project_desc}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Instructor Review</th>
+                                        <td>{{r.teacher_review}}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Help Availability</th>
+                                        <td>{{r.help_availability}}%</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Working Hours/week</th>
+                                        <td> {{r.working_hours}} </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Team Size</th>
+                                        <td> {{r.team_size}} </td>
+                                    </tr>
+                                    <tr>
+                                        <th> Followup Course</th>
+                                        <td>  {{r.followup_course_name}} </td>
+                                    </tr>
+                                  </table>
+                            </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+        </div>
         {% else %}
         <p> <h3> no reviews available </h3> </p>
         {% endif %}
+
+          
 
     </form>
 </body>

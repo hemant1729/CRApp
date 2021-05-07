@@ -184,6 +184,7 @@ def view_reviews(request):
         if len(reviews) > 0:
             context['reviews'] = reviews
         context['course_name'] = request.GET.get('course_name')
+        context['tags']  = Course_tags(course_id).get_tags();
         return render(request, 'student/reviews.html', context)
     return redirect('/student/courses')
 
@@ -300,8 +301,8 @@ def student_recommender(request):
         cur.append(ls)
         out.append(cur)
     context['recommended'] = out
+    context['reco_courses'] = [get_course_name(c) for c in get_similar_courses(student.student_id)]
     return render(request, 'student/recommender.html', context)
-
 
 @login_required(login_url='/')
 def student_issues(request):

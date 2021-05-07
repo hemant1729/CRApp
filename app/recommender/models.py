@@ -16,6 +16,8 @@ def get_connection():
 
 def update_student_tag_weights(student_id, removed_tags, added_tags):
     alpha = 0.5
+    print(removed_tags)
+    print(added_tags)
     try:
         conn = get_connection()
         cur = conn.cursor()
@@ -99,3 +101,17 @@ def get_course_name(course_id):
         return data[0][0]
     except:
         raise Exception("connection")
+
+def get_similar_courses(student_id):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("with temp(course_id, tag_id, w) as (select course_id, tag_id, 1.0 / h from (select course_id, SQRT(COUNT(*)) as h from course_tags group by course_id) as x natural join course_tags) \
+                     SELECT course_id, SUM(weight * w) as t FROM student_tag_weights natural join temp WHERE student_id = %s GROUP BY course_id ORDER BY t DESC LIMIT 5\
+                    ", (student_id,))
+        data = cur.fetchall()
+        out = [d[0] for d in data]
+        cur.close()
+        return out
+    except:
+         raise Exception("connection")

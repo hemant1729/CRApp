@@ -3,49 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <title>CRApp</title>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+         button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            margin: 50px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-size: 16px;
+        }
+        input[type=submit] {
+                border: none;
+                color: black;
+                padding: 14px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                input[type=text], select {
+                    width: 50%;
+                    padding: 12px 20px;
+                    margin: 8px;
+                    display: inline-block;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    }
+
+                    input[type=submit]:hover {
+                    background-color: #45a049;
+                    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            th, td {
+            text-align: left;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+            background-color: #4CAF50;
+            color: white;
+            }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
-    <h2>{{ course_name }}</h2>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <ul>
+        <li><a href="/student/">Profile</a></li>
+        <li class="active"><a href="/student/courses">Courses</a></li>
+        <li><a href="/student/interests">Interests</a></li>
+        <li><a href="/student/timetable">Timetable</a></li>
+        <li><a href="/student/recommender">Recommender</a></li>
+        <li><a href="/student/issues">Issues</a></li>
+        <li><a href="/student/messages">Messaging</a></li>
+    </ul>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Your Courses</h2>
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <h2>Already Done:</h2>
-        <p>Course Name: <input type="text" name="course_name"></p>
-        <p>Year: <input type="text" name="year"></p>
-        <p>Season: <input type="text" name="season"></p>
-        <p>Instr Name: <input type="text" name="instr_name"></p>
-        <p><input type="submit" name="search" value="search"></p>
+        <h2 style="font-size: 30px;">Already Done:</h2>
+        <h2>Course Name: <input type="text" name="course_name"></h2>
+        <h2>Year: <input type="text" name="year"></h2>
+        <h2>Season: <select name="season">
+            <option value="">--- ---</option>
+            <option value="0">Spring</option>
+            <option value="1">Autumn</option>
+          </select></h2>
+        <h2>Instr Name: <input type="text" name="instr_name"></h2>
+        <p style="margin-left: 20px;"><input type="submit" name="search" value="search"></p>
 
         {% if takes %}
-            <b> Course Year Season Instr_name delete</b>
-            {% for t in takes %}
-                <p>{{t.course_name}} {{t.year}} {{t.season}} {{t.instr_name}} {{t.time_slot_id}}
-                <input type='checkbox' value='{{t.course_id}}:{{t.sem_id}}:{{t.instructor_id}}' name='delete_list'>
-                <a href='/student/reviews/?take_id={{t.take_id}}'> add/modify reviews</a>
-                <a href='/view_reviews/?course_id={{t.course_id}}&sem_id={{t.sem_id}}&instructor_id={{t.instructor_id}}&course_name={{t.course_name}}'> view reviews</a>
-                </p>
-            {% endfor %}
+            <table class = "table">
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Season</th>
+                        <th>Instructor</th>
+                        <th>Timeslot</th>
+                        <th>Delete</th>
+                        <th>Your Review</th>
+                        <th>View Reviews</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in takes %}
+                        <tr>
+                            <td>{{t.course_name}}</td>
+                            <td>{{t.year}}</td>
+                            {%  if t.season == 0 %}
+                            <td>Spring</td>
+                            {% else %}
+                            <td>Autumn</td>
+                            {% endif %}
+                            <td>{{t.instr_name}}</td>
+                            <td>{{t.time_slot_id}}</td>
+                            <td><input type='checkbox' value='{{t.course_id}}:{{t.sem_id}}:{{t.instructor_id}}' name='delete_list'></td>
+                            <td> <a href='/student/reviews/?take_id={{t.take_id}}'> add/modify reviews</a></td>
+                            <td><a href='/view_reviews/?course_id={{t.course_id}}&sem_id={{t.sem_id}}&instructor_id={{t.instructor_id}}&course_name={{t.course_name}}'> View Reviews</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% endif %}
-
-        <h2>New courses:</h2>
-        <p>Course Name: <input type="text" name="new_course_name"></p>
-        <p>Year: <input type="text" name="new_year"></p>
-        <p>Season: <input type="text" name="new_season"></p>
-        <p>Instr Name: <input type="text" name="new_instr_name"></p>
-        <p><input type="submit" name="new_search" value="new_search"></p>
+        <p style="margin-left: 20px;"><input type="submit" name="update" value="update"></p>
+        <h2 style="font-size: 30px;">New courses:</h2>
+        <h2>Course Name: <input type="text" name="new_course_name"></h2>
+        <h2>Year: <input type="text" name="new_year"></h2>
+        <h2>Season: <select name="new_season">
+            <option value="">--- ---</option>
+            <option value="0">Spring</option>
+            <option value="1">Autumn</option>
+          </select></h2>
+        <h2>Instr Name: <input type="text" name="new_instr_name"></h2>
+        <p style="margin-left: 20px;"><input type="submit" name="new_search" value="new_search"></p>
 
         {% if new_courses %}
-            <b> Course Year Season Instr_name add</b>
-            {% for c in new_courses %}
-                <p>{{c.course_name}} {{c.year}} {{c.season}} {{c.instr_name}}  {{c.time_slot_id}}
-                    {{c.num_quizzes}} {{c.num_assgn}} {{c.exam_toughness}}
-                <td> <input type='checkbox' value='{{c.course_id}}:{{c.sem_id}}:{{c.instructor_id}}' name='update_list'></td>
-                <a href='/view_reviews/?course_id={{c.course_id}}&sem_id={{c.sem_id}}&instructor_id={{c.instructor_id}}&course_name={{c.course_name}}'> view reviews</a>
-                </p>
-            {% endfor %}
+        <table class = "table">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Year</th>
+                    <th>Season</th>
+                    <th>Instructor</th>
+                    <th>Timeslot</th>
+                    <th>Overall Rating</th>
+                    <th>Working Hours</th>
+                    <th>View Reviews</th>
+                    <th>Add course</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in new_courses %}
+                    <tr>
+                        <td>{{c.course_name}}</td>
+                        <td>{{c.year}}</td>
+                        {%  if c.season == 0 %}
+                        <td>Spring</td>
+                        {% else %}
+                        <td>Autumn</td>
+                        {% endif %}
+                        <td>{{c.instr_name}}</td>
+                        <td>{{c.time_slot_id}}</td>
+                        <td>{{c.overall_feel}}</td>
+                        <td>{{c.working_hours}}</td>
+                        <td><a href='/view_reviews/?course_id={{c.course_id}}&sem_id={{c.sem_id}}&instructor_id={{c.instructor_id}}&course_name={{c.course_name}}'> View Reviews</a></td>
+                        <td> <input type='checkbox' value='{{c.course_id}}:{{c.sem_id}}:{{c.instructor_id}}' name='update_list'></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
         {% endif %}
-        <p><input type="submit" name="update" value="update"></p>
+        </table>
+        <p style="margin-left: 20px;"><input type="submit" name="update" value="update"></p>
 
 
     </form>

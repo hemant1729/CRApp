@@ -3,10 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <title>CRApp</title>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+         button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            margin: 50px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-size: 16px;
+        }
+        input[type=submit] {
+                border: none;
+                color: black;
+                padding: 14px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                input[type=text], select {
+                    width: 50%;
+                    padding: 12px 20px;
+                    margin: 8px;
+                    display: inline-block;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    }
+
+                    input[type=submit]:hover {
+                    background-color: #45a049;
+                    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            th, td {
+            text-align: left;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+            background-color: #4CAF50;
+            color: white;
+            }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
-    <h2>Recommender</h2>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <ul>
+        <li><a href="/student/">Profile</a></li>
+        <li ><a href="/student/courses">Courses</a></li>
+        <li><a href="/student/interests">Interests</a></li>
+        <li ><a href="/student/timetable">Time Table</a></li>
+        <li class="active"><a href="/student/recommender">Recommender</a></li>
+        <li><a href="/student/issues">Issues</a></li>
+        <li><a href="/student/messages">Messaging</a></li>
+    </ul>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Recommendations for you</h2>
    <table class="table">
        <thead>
            <tr>
@@ -29,5 +126,9 @@
        {% endfor %}
        </tbody>
    </table>
+   <h2>Courses with similar tags</h2>
+   {% for i in reco_courses %}
+    {{i}}&nbsp;
+   {% endfor %}
 </body>
 </html>

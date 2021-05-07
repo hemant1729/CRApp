@@ -3,27 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <title>CRApp</title>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+         button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            margin: 50px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-size: 16px;
+        }
+        input[type=submit] {
+                border: none;
+                color: black;
+                padding: 14px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                input[type=text], select {
+                    width: 50%;
+                    padding: 12px 20px;
+                    margin: 8px;
+                    display: inline-block;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    }
+
+                    input[type=submit]:hover {
+                    background-color: #45a049;
+                    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            th, td {
+            text-align: left;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+            background-color: #4CAF50;
+            color: white;
+            }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <button style="position: absolute;
+    top: 8px;
+    right: 150px;" onclick="location.href='/student/courses'" type="button">Back </button>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <ul>
+        <li><a href="/student/">Profile</a></li>
+        <li class="active"><a href="/student/courses">Courses</a></li>
+        <li><a href="/student/interests">Interests</a></li>
+        <li><a href="/student/timetable">Timetable</a></li>
+        <li><a href="/student/recommender">Recommender</a></li>
+        <li><a href="/student/issues">Issues</a></li>
+        <li><a href="/student/messages">Messaging</a></li>
+    
+    </ul>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Your Review</h2>
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <p>Grade: <input type="text" name="grade_name" value="{{review.grade_name}}"></p>
-        <p>num_quiz: <input type="number" name="num_quiz" value="{{review.num_quiz}}"></p>
-        <p>num_assgn: <input type="number" name="num_assgn" value="{{review.num_assgn}}"></p>
-        <p>exam_toughness: <input type="number" name="exam_toughness" value="{{review.exam_toughness}}"></p>
-        <p>assgn_toughness: <input type="number" name="assgn_toughness" value="{{review.assgn_toughness}}"></p>
-        <p>overall_feel: <input type="number" name="overall_feel" value="{{review.overall_feel}}"></p>
-        <p>project: <input type="number" name="project" value="{{review.project}}"></p>
-        <p>project details: <input type="text" name="project_details" value="{{review.project_description}}"></p>
-        <p>teacher review: <input type="text" name="teacher_review" value="{{review.teacher_review}}"></p>
-        <p>help availability: <input type="number" name="help_availability" value="{{review.help_availability}}"></p>
-        <p>working hours per week: <input type="number" name="working_hours" value="{{review.working_hours}}"></p>
-        <p>team size: <input type="number" name="team_size" value="{{review.team_size}}"></p>
-        <p>followup course name: <input type="text" name="followup_course_name" value="{{review.followup_course_name}}"></p>
-        <p><input type="submit" name="modify" value="modify"></p>
-        <p><input type="submit" name="delete" value="delete"></p>
+        <h2>Grade: <input type="text" name="grade_name" value="{{review.grade_name}}"></h2>
+        <h2>No.of Quizzes: <input type="number" name="num_quiz" value="{{review.num_quiz}}" min="0"></h2>
+        <h2>No.of Assignments: <input type="number" name="num_assgn" value="{{review.num_assgn}}" min="0"></h2>
+        <h2>Exam Toughness (1-10): <input type="number" name="exam_toughness" value="{{review.exam_toughness}}"  min="1" max="10"></h2>
+        <h2>Assignmet Toughness (1-10): <input type="number" name="assgn_toughness" value="{{review.assgn_toughness}}"  min="1" max="10"></h2>
+        <h2>Overall Rating of the Course (1-10): <input type="number" name="overall_feel" value="{{review.overall_feel}}" min="1" max="10"></h2>
+        <h2>Project: <select name="project">
+            {% if review.project == "1" %}
+            <option value="1" selected>Yes</option>
+            <option value="0">No</option>
+            {% else %}
+            <option value="1">Yes</option>
+            <option value="0" selected>No</option>
+            {% endif %}
+          </select>
+        </h2>
+        <h2>Project Details: <input type="text" name="project_details" value="{{review.project_description}}"></h2>
+        <h2>Teacher Review: <input type="text" name="teacher_review" value="{{review.teacher_review}}"></h2>
+        <h2>Help Availability (%): <input type="number" name="help_availability" value="{{review.help_availability}}"  min="0" max="100"></h2>
+
+        <h2>Working hours per week: <input type="number" name="working_hours" value="{{review.working_hours}}"  min="0" max="80"></h2>
+        <h2>Team Size: <input type="number" name="team_size" value="{{review.team_size}}"  min="0" max="100"></h2>
+        <h2>Followup Course: <input type="text" name="followup_course_name" value="{{review.followup_course_name}}"></h2>
+        <p style="margin-left: 20px;"><input type="submit" name="modify" value="modify"></p>
+        <p style="margin-left: 20px;"><input type="submit" name="delete" value="delete"></p>
         <p><input type="hidden" name="take_id" value="{{review.take_id}}"></p>
     </form>
 </body>

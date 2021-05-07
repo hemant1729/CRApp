@@ -3,16 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <title>CRApp</title>
+    <style>
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+         button {
+            border: none;
+            color: black;
+            padding: 15px 32px;
+            margin: 50px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 18px;
+            font-size: 16px;
+        }
+        input[type=submit] {
+                border: none;
+                color: black;
+                padding: 14px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 14px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+                input[type=text], select {
+                    width: 50%;
+                    padding: 12px 20px;
+                    margin: 8px;
+                    display: inline-block;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    }
+
+                    input[type=submit]:hover {
+                    background-color: #45a049;
+                    }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            }
+
+            th, td {
+            text-align: left;
+            padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+            background-color: #4CAF50;
+            color: white;
+            }
+    </style>
 </head>
 <body>
-    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
-    <h2>Grade</h2>
+    <button style="position: absolute;
+    top: 8px;
+    right: 150px;" onclick="location.href='/'" type="button">Back </button>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <ul>
+        <li ><a href="/admin/program">Programs</a></li>
+        <li><a href="/admin/dept">Departments</a></li>
+        <li><a href="/admin/course">Courses</a></li>
+        <li><a href="/admin/instr">Instructors</a></li>
+        <li><a href="/admin/sem">Semesters</a></li>
+        <li><a href="/admin/timeslot">Timeslots</a></li>
+        <li><a href="/admin/tag">Tags</a></li>
+        <li><a href="/admin/course_sem">Course-Semester</a></li>
+        <li  class="active"><a href="/admin/grade">Grades</a></li>
+        <li><a href="/admin/issues">Issues</a></li>
+    </ul>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Grades</h2>
     <h3> {{ error }} </h3>
     <form method="post">
         {% csrf_token %}
-        <p>Name: <input type="text" name="grade_name"></p>
-        <p>Value: <input type="text" name="value"></p>
-        <p><input type="submit" name="add" value="add"></p>
+        <h2>Name: <input type="text" name="grade_name"></h2>
+        <h2>Value: <input type="text" name="value"></h2>
+        <p style="margin-left: 20px;"><input type="submit" name="add" value="add"></p>
 
         {% if grade_names %}
 
@@ -28,7 +131,6 @@
             <tbody>
             {% for i in grade_names %} 
             <tr>
-                <td> {{i.1}} {{i.2}} </td>
                 <td> <input type="text" value='{{i.1}}' name='updated_names' required> </td>
                 <td> <input type="text" value='{{i.2}}' name='updated_values' required> </td>
                 <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.1}}' name='update_list'></td>
@@ -39,7 +141,7 @@
         </table>
 
         {% endif %}
-        <p><input type="submit" name="update" value="update"></p>
+        <p style="margin-left: 20px;"><input type="submit" name="update" value="update"></p>
     </form>
 </body>
 </html>

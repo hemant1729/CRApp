@@ -2,18 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Admin Home</title>
+    <style>
+        body {
+          font-size: 28px;
+        }
+        button {
+                border: none;
+                color: black;
+                padding: 15px 32px;
+                margin: 50px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 18px;
+                font-size: 16px;
+            }
+        ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: -webkit-sticky; /* Safari */
+          position: sticky;
+          top: 0;
+        }
+        
+        li {
+          float: left;
+        }
+        
+        li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+        }
+        
+        li a:hover {
+          background-color: #111;
+        }
+        
+        .active {
+          background-color: #4CAF50;
+        }
+        </style>
 </head>
 <body>
-    <a href="/logout">logout</a>
-    <a href="program">program</a>
-    <a href="dept">department</a>
-    <a href="course">course</a>
-    <a href="instr">instructor</a>
-    <a href="sem">semester</a>
-    <a href="timeslot">timeslot</a>
-    <a href="tag">tag</a>
-    <a href="course_sem">course_semester</a>
-    <a href="grade">grade</a>
+    <button style="position: absolute;
+        top: 8px;
+        right: 16px;" onclick="location.href='/logout'" type="button">Logout </button>
+    <h1 style="text-align: center; font-size:60px; padding-top: 40px; padding-bottom: 20px ;">CRApp</h1>
+    <h2 style="text-align: center; font-size:40px; padding: 10px;">Admin Home</h2>
+    <ul>
+        <li><a href="/admin/program">Programs</a></li>
+        <li><a href="/admin/dept">Departments</a></li>
+        <li><a href="/admin/course">Courses</a></li>
+        <li><a href="/admin/instr">Instructors</a></li>
+        <li><a href="/admin/sem">Semesters</a></li>
+        <li><a href="/admin/timeslot">Timeslots</a></li>
+        <li><a href="/admin/tag">Tags</a></li>
+        <li><a href="/admin/course_sem">Course-Semester</a></li>
+        <li><a href="/admin/grade">Grades</a></li>
+        <li><a href="/admin/issues">Issues</a></li>
+    </ul>
 </body>
 </html>
