@@ -1099,3 +1099,19 @@ class Review:
             cur.close()
         except:
             raise Exception("connection error")
+
+class Timetable:
+    def __init__(self, student_id=None):
+        self.student_id = student_id
+    def get_timetable(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('select course_name, day, start_time, end_time from student_sem natural join takes natural join course_semester natural join timeslot natural join course where student_sem.student_id = %s', (self.student_id,))
+            conn.commit()
+            data = cur.fetchall()
+            out = [(d[0], d[1], d[2].strftime('%H:%M'), d[3].strftime('%H:%M')) for d in data]
+            cur.close()
+            return out
+        except:
+            raise Exception("connection error")
