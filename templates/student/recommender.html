@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Recommender</h2>
+   <table class="table">
+       <thead>
+           <tr>
+               <th> Name </th>
+               <th> Message </th>
+               <th> Courses taken </th>
+           </tr>
+       </thead>
+       <tbody>
+       {% for i in recommended %} 
+       <tr>
+           <td> {{i.0}} </td>
+           <td> {{i.1}} </td>
+           <td> {{i.2}} </td>
+       </tr>
+       {% endfor %}
+       </tbody>
+   </table>
+</body>
+</html>
