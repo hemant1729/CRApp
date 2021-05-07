@@ -19,8 +19,12 @@
        {% for i in recommended %} 
        <tr>
            <td> {{i.0}} </td>
-           <td> {{i.1}} </td>
-           <td> {{i.2}} </td>
+           <td> <a href = {{i.1}}>Message!</a> </td>
+           <td>
+              {% for j in i.2 %}
+                <a href = {{j.0}}>{{j.1}}</a>&nbsp;
+              {% endfor %}
+           </td>
        </tr>
        {% endfor %}
        </tbody>
