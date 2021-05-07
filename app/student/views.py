@@ -38,8 +38,8 @@ def student_home(request):
     
     context['error'] = error
     student.fill()
-    
-    context['student_data'] = [student.name, student.year, student.prog_name, student.dept_name]
+    cpi, tot_credits = Student.get_cpi_credits(str(student.student_id))
+    context['student_data'] = [student.name, student.year, student.prog_name, student.dept_name, cpi, tot_credits]
     return render(request, 'student/home.html', context)
 
 
@@ -97,6 +97,7 @@ def student_courses(request):
 
     return render(request, 'student/course.html', context)
 
+
 @login_required(login_url='/')
 def student_reviews(request):
     try:
@@ -149,6 +150,7 @@ def student_reviews(request):
             if review is None:
                 review = Review(take_id=take_id)
                 review.insert()
+                review.grade_name = None
             else:
                 if review.followup_course_id is not None:
                     course = Course()
@@ -186,6 +188,7 @@ def view_reviews(request):
 @login_required(login_url='/')
 def student_test(request):
     return render(request, 'student/test.html')
+
 
 @login_required(login_url='/')
 def student_interests(request):

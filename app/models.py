@@ -565,6 +565,31 @@ class Student:
         except:
             raise Exception("connection error")
 
+
+    @staticmethod
+    def get_cpi_credits(student_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT value, credits FROM (((REVIEW NATURAL JOIN TAKES) INNER JOIN COURSE_SEMESTER USING (course_id, sem_id, instructor_id) \
+                INNER JOIN GRADE USING (grade_id)) INNER JOIN COURSE USING (course_id)) \
+                    WHERE student_id=%s', (student_id,))
+            conn.commit()
+            data = cur.fetchall()
+            tot_points = 0
+            tot_credits = 0
+            for d in data:
+                tot_credits += d[1]
+                tot_points += d[0]*d[1]
+            if tot_credits == 0:
+                return 0, 0
+            else:
+                return round(tot_points/tot_credits, 2), tot_credits
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+
 class Tag:
     def __init__(self, tag_name=None):
         self.tag_name = tag_name
@@ -726,6 +751,8 @@ class Course_semester:
         except:
             raise Exception("connection error")
 
+
+
     @staticmethod
     def search(course_name, sem_year, sem_season, instr_roll_num, instr_name):
         try:
@@ -767,7 +794,7 @@ class Takes:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('SELECT * FROM TAKES NATURAL JOIN STUDENT WHERE take_id=%s', (self.take_id))
+            cur.execute('SELECT * FROM TAKES NATURAL JOIN STUDENT WHERE take_id=%s', (self.take_id,))
             conn.commit()
             data = cur.fetchone()
             if data is not None:
@@ -977,38 +1004,7 @@ class Review:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute("SELECT * FROM (((REVIEW NATURAL JOIN TAKES) LEFT JOIN GRADE USING (grade_id))) WHERE take_id=%s", (take_id))
-            conn.commit()
-            data = cur.fetchall()
-            output = None
-            if len(data)>0:
-                data=data[0]
-                output = Review(take_id=take_id)
-                output.grade_id = data[0]
-                output.num_quiz = data[2]
-                output.num_assgn = data[3]
-                output.exam_toughness = data[4]
-                output.assgn_toughness = data[5]
-                output.overall_feel = data[6]
-                output.project = data[7]
-                output.project_description = data[8]
-                output.teacher_review = data[9]
-                output.help_availability = data[10]
-                output.working_hours = data[11]
-                output.team_size = data[12]
-                output.followup_course_id = data[13]
-                output.grade_name = data[18]
-            cur.close()
-            return output
-        except:
-            raise Exception("connection error")
-
-    @staticmethod
-    def search(take_id):
-        try:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT * FROM (((REVIEW NATURAL JOIN TAKES) LEFT JOIN GRADE USING (grade_id))) WHERE take_id=%s", (take_id))
+            cur.execute("SELECT * FROM (((REVIEW NATURAL JOIN TAKES) LEFT JOIN GRADE USING (grade_id))) WHERE take_id=%s", (take_id,))
             conn.commit()
             data = cur.fetchall()
             output = None
