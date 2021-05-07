@@ -234,3 +234,51 @@ def student_interests(request):
 def student_test(request):
     return render(request, 'student/test.html')
 
+@login_required(login_url='/')
+def student_timetable(request):
+    student = Student(request.user.username)
+    student.fill()
+    timetable = Timetable(student.student_id).get_timetable()
+    table = {}
+    timeslots = []
+    days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']
+    for name, day, start, end in timetable:
+        timeslots.append((start, end))
+    timeslots = list(set(timeslots))
+    timeslots.sort()
+    for day in days:
+        for timeslot in timeslots:
+            table[(day, timeslot)] = 'None'
+    for name, day, start, end in timetable:
+        table[(day, (start, end))] = name
+    times = [x + '-' + y for (x, y) in timeslots]
+    out = [['DAY'] + times]
+    for day in days:
+        cur = [day]
+        for timeslot in timeslots:
+            cur.append(table[(day, timeslot)])
+        out.append(cur)
+    context = {}
+    context['table'] = out
+    return render(request, 'student/timetable.html', context)
+
+@login_required(login_url='/')
+def student_recommender(request):
+    student = Student(request.user.username)
+    student.fill()
+    similar_students = get_similar_students(student.student_id)
+    out = []
+    context = {}
+    out = []
+    for sim_stud in similar_students:
+        extras = get_recommended_courses(student.student_id, sim_stud)
+        cur = [get_student_name(sim_stud)]
+        cur.append("<a href=\"http://127.0.0.1:8000/student/messages/?student_id={}\">Message!</a>&nbsp;".format(sim_stud))
+        course_list = ""
+        for c, s, i in extras:
+            course_list += "<a href=\"http://127.0.0.1:8000/view_reviews/?course_id={}&sem_id={}&instructor_id={}\">{}</a>&nbsp;".format(c, s, i, get_course_name(c))
+        cur.append(course_list)
+        out.append(cur)
+    context['recommended'] = out
+    return render(request, 'student/recommender.html', context)
+
