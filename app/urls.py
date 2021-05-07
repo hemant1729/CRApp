@@ -22,4 +22,6 @@ urlpatterns = [
     path('student/courses/', views.student_courses),
     path('student/reviews/', views.student_reviews),
     path('view_reviews/', views.view_reviews),
+    path('student/timetable/', views.student_timetable),
+    path('student/recommender/', views.student_recommender),
 ]
