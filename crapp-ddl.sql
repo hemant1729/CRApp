@@ -42,6 +42,7 @@ create table Timeslot (
 	start_time	time not null,
 	end_time	time not null
 );
+create index Time_slot_id on Timeslot(time_slot_id);
 
 
 create table Course(
@@ -82,13 +83,6 @@ create table Course_tags (
 );
 create index Course_tags_course on Course_tags(course_id);
 
-create table Pre_req (
-	course_id	int,
-	prereq_id	int,
-	foreign key (course_id) references Course(course_id),
-	foreign key (prereq_id) references Course(course_id)
-);
-
 create table Course_semester (
 	course_id	int,
 	sem_id		int,
@@ -123,15 +117,6 @@ create table Takes (
 	foreign key (course_id) references Course(course_id)
 );
 
-create table Core_courses (
-	sem_id		int,
-	dept_id	int,
-	course_id	int,
-	foreign key (sem_id) references Semester(sem_id),
-	foreign key (dept_id) references Department(dept_id),
-	foreign key (course_id) references Course(course_id)
-);
-
 create table Review(
 	take_id		int,
 	grade_id	int,
@@ -153,16 +138,6 @@ create table Review(
 	foreign key (followup_course_id) references Course(course_id)
 );
 
-create table DGSEC(
-	student_id	int,
-	sem_id		int,
-	dept_id	int,
-	foreign key (student_id) references Student(student_id),
-	foreign key (sem_id) references Semester(sem_id),
-	foreign key (dept_id) references Department(dept_id)
-);
-
-
 create table Student_tag_weights (
 	student_id	int,
 	tag_id		int,
@@ -173,6 +148,7 @@ create table Student_tag_weights (
 	foreign key (tag_id) references Tags(tag_id)
 );
 create index Student_tag_weights_student on Student_tag_weights(student_id);
+create index Student_tag_weights_tag on Student_tag_weights(tag_id);
 
 create table Student_sem (
 	student_id  int primary key,
@@ -180,6 +156,8 @@ create table Student_sem (
 	foreign key (student_id) references Student(student_id),
 	foreign key (sem_id) references Semester(sem_id)
 );
+create index Student_sem_student_id on Student_sem(student_id);
+create index Student_sem_sem_id on Student_sem(sem_id);
 
 create table Messages (
 	message_id  int,
@@ -191,6 +169,7 @@ create table Messages (
 	foreign key (receiver_id) references Student(student_id)
 );
 create index Messages_sender on Messages(sender_id);
+create index Messages_receiver on Messages(receiver_id);
 
 create table Issues(
 	issue_id	serial primary key,
