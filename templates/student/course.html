@@ -38,7 +38,7 @@
         {% if new_courses %}
             <b> Course Year Season Instr_name add</b>
             {% for c in new_courses %}
-                <p>{{c.course_name}} {{c.year}} {{c.season}} {{c.instr_name}} 
+                <p>{{c.course_name}} {{c.year}} {{c.season}} {{c.instr_name}}  {{c.time_slot_id}}
                     {{c.num_quizzes}} {{c.num_assgn}} {{c.exam_toughness}}
                 <td> <input type='checkbox' value='{{c.course_id}}:{{c.sem_id}}:{{c.instructor_id}}' name='update_list'></td>
                 <a href='/view_reviews/?course_id={{c.course_id}}&sem_id={{c.sem_id}}&instructor_id={{c.instructor_id}}&course_name={{c.course_name}}'> view reviews</a>
