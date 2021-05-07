@@ -24,4 +24,8 @@ urlpatterns = [
     path('view_reviews/', views.view_reviews),
     path('student/timetable/', views.student_timetable),
     path('student/recommender/', views.student_recommender),
+    path('student/issues', views.student_issues),
+    path('admin/issues', views.admin_issues),
+    path('student/messages/', views.student_messages),
+    path('instructor/', views.instructor_home)
 ]

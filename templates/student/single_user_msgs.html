@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Send Message</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Message: <input type="message" name="message"></p>
+        <!-- <p><input type="submit" name="raise_issue" value="raise_issue"></p> -->
+        <p><input type="submit" name="send" value="send"></p>
+        {% if messages %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> From </th>
+                    <th> To </th>
+                    <th> Text </th>
+                    <th> Time </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in messages %} 
+            <tr>
+                <td> {{i.1}} </td>
+                <td> {{i.2}} </td>
+                <td> {{i.3}} </td>
+                <td> {{i.4}} </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+        <p> <h4> No conversation with this user </h4> </p>
+        {% endif %}
+    </form>

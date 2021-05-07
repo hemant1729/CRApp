@@ -475,6 +475,26 @@ def admin_grade(request):
     context['error'] = error 
     return render(request, 'admin/grade.html', context)
 
+@user_passes_test(is_admin)
+def admin_issues(request):
+    error = ''
+    context = {}
+    if request.method == 'POST':
+        data = request.POST
+        try:
+            if 'search' in data:
+                issues_list = Issues.search()
+                context['issue_texts'] = issues_list
+            elif 'update' in data:
+                for u in data.getlist('update_list'):
+                    uid, i_id = u.split(':')
+                    issue = Issues(issue_id=int(i_id))
+                    issue.update(data.getlist('replies')[int(uid)])
+        except:
+            error = "DB error"
+    context['error'] = error
+    return render(request, 'admin/issues.html', context)
+
 
 @user_passes_test(is_admin)
 def admin_test(request):

@@ -6,7 +6,7 @@ from psycopg2.extensions import AsIs
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="postgres",
+                                      password="kumarpavan@15",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")

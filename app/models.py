@@ -7,7 +7,7 @@ from app.recommender.models import *
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="postgres",
+                                      password="kumarpavan@15",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
@@ -1103,6 +1103,57 @@ class Review:
         except:
             raise Exception("connection error")
 
+    @staticmethod
+    def search_teacher(instructor_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM (((((REVIEW INNER JOIN TAKES USING (take_id)) INNER JOIN COURSE USING (course_id)) \
+                INNER JOIN INSTRUCTOR USING (instructor_id)) INNER JOIN SEMESTER USING(sem_id)) INNER JOIN STUDENT USING (student_id)) WHERE \
+                    instructor_id=%s", (instructor_id,))
+            conn.commit()
+            data = cur.fetchall()
+            output = []
+            for d in data:
+                review = Review()
+                review.num_quiz = d[6]
+                review.num_assgn = d[7]
+                review.exam_toughness = d[8]
+                review.assng_toughness = d[9]
+                review.overall_feel = d[10]
+                review.project = d[11]
+                review.project_desc = d[12]
+                review.teacher_review = d[13]
+                review.help_availability = d[14]
+                review.working_hours = d[15]
+                review.team_size = d[16]
+                review.followup_course_id = d[17]
+                review.course_name = d[18]
+                review.instr_name = d[23]
+                review.year = d[25]
+                review.season = d[26]
+                review.student_roll_num = d[27]
+                review.student_name = d[28]
+                output.append(review)
+            cur.close()
+            return output
+            
+        except:
+            raise Exception("connection error")
+    @staticmethod
+    def get_instr_name(instructor_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT instr_name FROM INSTRUCTOR WHERE instructor_id=%s',(instructor_id,))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data[0][0]
+            
+        except:
+            raise Exception("conncection error")
+
 class Timetable:
     def __init__(self, student_id=None):
         self.student_id = student_id
@@ -1116,5 +1167,136 @@ class Timetable:
             out = [(d[0], d[1], d[2].strftime('%H:%M'), d[3].strftime('%H:%M')) for d in data]
             cur.close()
             return out
+        except:
+            raise Exception("connection error")
+
+class Issues:
+    def __init__(self,issue_id = None, student_id=None, date=None, issue=None, status=None, reply=None):
+        self.issue_id = issue_id
+        self.student_id = student_id
+        self.date = date
+        self.issue = issue
+        self.status = status
+        self.reply = reply
+
+    def insert(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            #print(self.student_id,self.date,self.issue)
+            cur.execute('INSERT INTO ISSUES (student_id, date, issue, status, reply) VALUES (%s,%s,%s,%s,%s)', (self.student_id, self.date, self.issue, self.status, self.reply))
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    def update(self, reply):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('UPDATE ISSUES SET status = 1, reply=%s WHERE issue_id=%s', (reply,self.issue_id))
+            conn.commit()
+            cur.close()
+            self.reply = reply
+            self.status = 1
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search():
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT issues.issue_id, student.roll_num,issues.date,issues.issue,issues.status,issues.reply FROM ISSUES, STUDENT WHERE status = 0 and issues.student_id=student.student_id')
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def view_issues(student_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT issues.issue_id, student.roll_num,issues.date,issues.issue,issues.status,issues.reply FROM ISSUES, STUDENT WHERE issues.student_id = %s and issues.student_id=student.student_id', (student_id,))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+class Message:
+    def __init__(self, message_id = None, sender_id = None, receiver_id = None, text = None, time = None):
+        self.message_id = message_id
+        self.sender_id = sender_id
+        self.receiver_id = receiver_id
+        self.text = text
+        self.time = time
+    
+    def send_message(self):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            print("hello")
+            print(self.sender_id,self.receiver_id,self.text,self.time)
+            cur.execute('INSERT INTO MESSAGES (sender_id,receiver_id,message,time) VALUES (%s,%s,%s,%s)', (self.sender_id,self.receiver_id,self.text,self.time))
+            print("hello2")
+            conn.commit()
+            cur.close()
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def get_single_user_msgs(student_id, current_student):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT M.message_id, S1.roll_num, S2.roll_num, M.message, M.time FROM MESSAGES M, STUDENT S1, STUDENT S2 WHERE M.sender_id = S1.student_id and M.receiver_id = S2.student_id and ((M.sender_id = %s and M.receiver_id = %s) or (M.sender_id = %s and M.receiver_id = %s)) order by time', (student_id, current_student, current_student, student_id))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def search(roll_num):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM STUDENT WHERE roll_num ILIKE %(roll_num)s||'%%'", {'roll_num': roll_num})
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def view_sent_msgs(student_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT message_id, sender_id, roll_num, message, time FROM MESSAGES, STUDENT WHERE sender_id = %s and receiver_id = STUDENT.student_id order by STUDENT.student_id, time', (student_id, ))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
+        except:
+            raise Exception("connection error")
+
+    @staticmethod
+    def view_received_msgs(student_id):
+        try:
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT message_id, roll_num, receiver_id, message, time FROM MESSAGES, STUDENT WHERE receiver_id = %s and sender_id=STUDENT.student_id order by STUDENT.student_id, time', (student_id, ))
+            conn.commit()
+            data = cur.fetchall()
+            cur.close()
+            return data
         except:
             raise Exception("connection error")

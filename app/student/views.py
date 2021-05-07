@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from ..models import *
 from ..recommender.models import *
+import datetime
 
 @login_required(login_url='/')
 def student_home(request):
@@ -50,8 +51,8 @@ def student_courses(request):
     student = Student(request.user.username)
     student.fill()
     if request.method == 'POST':
-        data = request.POST
-        try:
+            data = request.POST
+        #try:
             if 'search' in data:
                 course_name = data['course_name']
                 year = data['year']
@@ -86,8 +87,8 @@ def student_courses(request):
                     take = Takes(student.student_id, u[0], u[1], u[2])
                     take.insert()
                 takes = student.get_takes('', '', '', '')
-        except:
-            error = 'DB error'
+        #except:
+           # error = 'DB error'
 
     else:
         takes = student.get_takes('','','','')
@@ -281,3 +282,103 @@ def student_recommender(request):
         out.append(cur)
     context['recommended'] = out
     return render(request, 'student/recommender.html', context)
+
+@login_required(login_url='/')
+def student_issues(request):
+    username = request.user.username
+    student = Student(roll_num=username)
+    student.fill()
+    error = ''
+    context = {}
+    if request.method == 'POST':
+            data = request.POST
+        #try:
+            if 'view_issues' in data:
+                issues_list = Issues.view_issues(student.student_id)
+                context['issue_texts'] = issues_list
+            
+            elif 'raise_issue' in data:
+                stu_id = student.student_id
+                ct = datetime.datetime.now()
+                issue_raised = data['issue']
+                if issue_raised != '':
+                    issue = Issues(student_id=stu_id, date=ct, issue=issue_raised, status=0, reply='')
+                    issue.insert()
+                else:
+                    error = "Type something to send"
+        #except:
+            #error = "DB error"
+    context['error'] = error
+    return render(request, 'student/issues.html', context)
+
+@login_required(login_url='/')
+def student_messages(request):
+    username = request.user.username
+    student = Student(roll_num=username)
+    student.fill()
+    error = ''
+    context = {}
+    if request.GET.get('student_id'):
+        student_id = request.GET.get('student_id')
+        if(request.method == 'POST'):
+            data = request.POST
+            if 'send' in data:
+                text = data['message']
+                if text != '':
+                    sender_id = student.student_id
+                    receiver_id = student_id
+                    ct = datetime.datetime.now()
+                    m = Message(sender_id=sender_id,receiver_id=receiver_id,text=text,time=ct)
+                    m.send_message()
+                else:
+                    error = 'Type something to send'
+
+        messages = Message.get_single_user_msgs(student_id,student.student_id)
+        context['messages'] = messages
+        context['error'] = error
+        
+        return render(request, 'student/single_user_msgs.html', context)
+    
+    if request.method == 'POST':
+        data = request.POST
+        try:
+            if 'search' in data:
+                roll_num = data['roll_num']
+                users_list = Message.search(roll_num)
+                context['users_list'] = users_list
+            
+            elif 'update' in data:
+                for u in data.getlist('sent_list'):
+                    uid, m_id = u.split(':')
+                    ct = datetime.datetime.now()
+                    text = data.getlist('text')[int(uid)]
+                    if text != '':
+                        message = Message(sender_id=student.student_id,receiver_id= m_id,text=text,time=ct)
+                        message.send_message()
+                    else:
+                        error = 'Type something to send'
+            elif 'view sent messages' in data:
+                messages_list = Message.view_sent_msgs(student.student_id)
+                context['sent_messages'] = messages_list
+            elif 'view received messages' in data:
+                msgs_list = Message.view_received_msgs(student.student_id)
+                context['received_messages'] = msgs_list
+        except:
+            error = "DB error"
+    context['error'] = error
+    return render(request, 'student/messages.html', context)
+
+def instructor_home(request):
+    error = ''
+    context = {}
+    if request.GET.get('instructor_id'):
+        instructor_id = request.GET.get('instructor_id')
+        context['instr_name'] = Review.get_instr_name(instructor_id)
+        instr_reviews = Review.search_teacher(instructor_id)
+        context['reviews'] = [[i.course_name,i.year,i.season,i.teacher_review] for i in instr_reviews]
+        if len(instr_reviews) > 0:
+            context['courses'] = list(set([i.course_name for i in instr_reviews]))
+            context['rating'] = sum([int(i.overall_feel) for i in instr_reviews if i.overall_feel!=''])/len([int(i.overall_feel) for i in instr_reviews if i.overall_feel!=''])
+        else:
+            context['rating'] = 'No reviews available for this instructor currently'
+        return render(request, 'student/instructor.html', context)

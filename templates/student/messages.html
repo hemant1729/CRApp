@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Send Message</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p>Roll Number: <input type="text" name="roll_num"></p>
+        <!--<p><input type="submit" name="raise_issue" value="raise_issue"></p> -->
+        <p><input type="submit" name="search" value="search"></p>
+
+        {% if users_list %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Roll Number </th>
+                    <th> Name </th>
+                    <th> Text </th>
+                    <th> Send </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in users_list %} 
+            <tr>
+                <td> {{i.1}} </td>
+                <td> {{i.2}} </td>
+                <td> <input type="text" value='' name='text'> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.0}}' name='sent_list'></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+    </form>
+    <h4>View Sent Messages</h4>
+    <form method="post">
+        {% csrf_token %}
+        {% if sent_messages %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <!-- <th> Message id </th> -->
+                    <th> Receiver </th>
+                    <th> Text </th>
+                    <th> Time </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in sent_messages %} 
+            <tr>
+                <!-- <td> {{i.0}} </td> -->
+                <td> {{i.2}} </td>
+                <td> {{i.3}} </td>
+                <td> {{i.4}} </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}   
+        <p><input type="submit" name="view sent messages" value="view sent messages"></p>     
+    </form>
+</form>
+<h5>View Received Messages</h5>
+<form method="post">
+    {% csrf_token %}
+    {% if received_messages %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <!--<th> Message id </th> -->
+                <th> Sender </th>
+                <th> Text </th>
+                <th> Time </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for i in received_messages %} 
+        <tr>
+            <!-- <td> {{i.0}} </td> -->
+            <td> {{i.1}} </td>
+            <td> {{i.3}} </td>
+            <td> {{i.4}} </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% endif %}   
+    <p><input type="submit" name="view received messages" value="view received messages"></p>     
+</form>
+</body>
+</html>

@@ -182,9 +182,11 @@ create table Student_sem (
 );
 
 create table Messages (
+	message_id  int,
 	sender_id 	int,
 	receiver_id	int,
 	message	text,
+	time    timestamp,
 	foreign key (sender_id) references Student(student_id),
 	foreign key (receiver_id) references Student(student_id)
 );

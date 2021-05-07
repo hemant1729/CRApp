@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CRApp</title>
+</head>
+<body>
+    <h1 style="text-align: center; font-size:60px; padding: 60px;">CRApp</h1>
+    <h2>Issues</h2>
+    <h3> {{ error }} </h3>
+    <form method="post">
+        {% csrf_token %}
+        <p><input type="submit" name="search" value="search"></p>
+
+        {% if issue_texts %}
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Issue_id </th>
+                    <th> Student_id </th>
+                    <th> Date </th>
+                    <th> Issue </th>
+                    <th> Status </th>
+                    <th> Reply </th>
+                    <th> Update </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for i in issue_texts %} 
+            <tr>
+                <td> {{i.0}} </td>
+                <td> {{i.1}} </td>
+                <td> {{i.2}} </td>
+                <td> {{i.3}} </td>
+                <td> {{i.4}} </td>
+                <td> <input type="text" value='{{i.5}}' name='replies'> </td>
+                <td> <input type='checkbox' value='{{forloop.counter0}}:{{i.0}}' name='update_list'></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% endif %}
+        <p><input type="submit" name="update" value="update"></p>
+    </form>
+</body>
+</html>
