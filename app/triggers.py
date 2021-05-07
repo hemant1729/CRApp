@@ -1,14 +1,23 @@
 import time
 import psycopg2
 import statistics
-from .models import get_connection
 
 
+def get_connection():
+    try:
+        conn = psycopg2.connect(user="postgres",
+                                      password="!Bwsl123",
+                                      host="127.0.0.1",
+                                      port="5432",
+                                      database="crapp")
+        return conn
+    except:
+        raise Exception("connection error")
 
 
 def course_trigger():
     stat_names = ['num_quiz', 'num_assgn', 'exam_toughness', 'assgn_toughness', 'overall_feel', 'project', 'help_availability', 'working_hours', 'team_size']
-    stat_type = ['mode', 'mode', 'mean', 'mean', 'mean', 'mode', 'mean', 'mean', 'mode']
+    stat_type = ['mode', 'mode', 'mean', 'mean', 'mean', 'mode', 'mean', 'mode', 'mode']
     stat_count = len(stat_names)
     conn = get_connection()
     cur = conn.cursor()
@@ -41,12 +50,13 @@ def course_trigger():
                 stat = statistics.mean(stat_list)
             agg_stat_dict[k].append(stat)
 
-    con
+    conn = get_connection()
+    cur = conn.cursor()
     for k in agg_stat_dict:
-        query = "UPDATE COURSE_SEMESTER SET (num_quiz, num_assgn, exam_toughness, overall_feel, project, help_availiability, working_hours, team_size) = \
-            ({}, {}, {}, {}, {}, {}, {}, {}, {}) WHERE course_id={} AND sem_id={} AND instructor_id={}".format(*agg_stat_dict[k], k[1], k[0], k[2])
-        
-
+        query = "UPDATE COURSE_SEMESTER SET (num_quiz, num_assgn, exam_toughness, assgn_toughness, overall_feel, project, help_availability, working_hours, team_size) = \
+            (%s, %s, %s, %s, %s, %s, %s, %s, %s) WHERE course_id=%s AND sem_id=%s AND instructor_id=%s"
+        cur.execute(query, (*agg_stat_dict[k], k[1], k[0], k[2]))
+    conn.commit()
     cur.close()
     
     
@@ -57,4 +67,5 @@ if __name__=='__main__':
     except:
         print('Failed to update trigger')
     time.sleep(10)
+
     print('Course table values updated')

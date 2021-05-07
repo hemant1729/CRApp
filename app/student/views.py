@@ -32,7 +32,7 @@ def student_home(request):
                 department = Department(dept_name)
                 department.fill()
                 dept_id = department.dept_id
-            student.update(name, year, prog_id, dept_id)
+            student.update(name, year, dept_id, prog_id)
         except:
             error = 'DB error'
     
@@ -100,6 +100,7 @@ def student_courses(request):
 
 @login_required(login_url='/')
 def student_reviews(request):
+    take_id = request.GET.get('take_id')
     try:
         if request.method=='POST':
             data = request.POST
@@ -168,7 +169,7 @@ def student_reviews(request):
 
 
 def view_reviews(request):
-    if request.GET.get('course_id') and request.GET.get('sem_id') and request.GET.get('instructor_id'):
+    if request.GET.get('course_id') and request.GET.get('sem_id') and request.GET.get('instructor_id') and request.GET.get('course_name'):
         context = {}
         course_id = request.GET.get('course_id')
         sem_id = request.GET.get('sem_id')
@@ -181,13 +182,9 @@ def view_reviews(request):
                 r.followup_course_name = course.course_name
         if len(reviews) > 0:
             context['reviews'] = reviews
+        context['course_name'] = request.GET.get('course_name')
         return render(request, 'student/reviews.html', context)
     return redirect('/student/courses')
-
-
-@login_required(login_url='/')
-def student_test(request):
-    return render(request, 'student/test.html')
 
 
 @login_required(login_url='/')
@@ -210,23 +207,30 @@ def student_interests(request):
     context = {}
     if request.method == 'POST':
         data = request.POST
-        try:
-            if 'search' in data:
-                tag_name = data['tag_name']
-                tag_list = Tag.search(tag_name)
-                tag_names = [d.tag_name for d in tag_list]
-                context['tag_names'] = tag_names
-            elif 'update' in data:
-                interests = Interests(student.student_id)
-                for d in data.getlist('delete_list'):
-                    interests.remove_tag(d)
-                for a in data.getlist('add_list'):
-                    interests.add_tag(a)
-            interests = Interests(student.student_id)
-            tag_list = interests.get_tags()
+        #try:
+        if 'search' in data:
+            tag_name = data['tag_name']
+            tag_list = Tag.search(tag_name)
             tag_names = [d.tag_name for d in tag_list]
-            context['student_tag_names'] = tag_names
-        except:
-            error = 'DB error'
+            context['tag_names'] = tag_names
+        elif 'update' in data:
+            interests = Interests(student.student_id)
+            for d in data.getlist('delete_list'):
+                interests.remove_tag(d)
+            for a in data.getlist('add_list'):
+                interests.add_tag(a)
+            update_student_tag_weights(student.student_id, {}, {})
+        interests = Interests(student.student_id)
+        tag_list = interests.get_tags()
+        tag_names = [d.tag_name for d in tag_list]
+        context['student_tag_names'] = tag_names
+        #except:
+        #    error = 'DB error'
     context['error'] = error 
     return render(request, 'student/interests.html', context)
+
+
+@login_required(login_url='/')
+def student_test(request):
+    return render(request, 'student/test.html')
+

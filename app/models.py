@@ -1,6 +1,7 @@
 from django.db import models
 import psycopg2
 from psycopg2.extensions import AsIs
+from app.recommender.models import *
 
 # Create your models here.
 def get_connection():
@@ -646,21 +647,26 @@ class Tag:
 class Course_tags:
     def __init__(self, course_id=None):
         self.course_id = course_id
+
     def get_tags(self):
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('SELECT tag_name FROM TAGS NATURAL JOIN COURSE_TAGS WHERE course_id=%s',(self.course_id,))
+            cur.execute('SELECT tag_name, tag_id FROM TAGS NATURAL JOIN COURSE_TAGS WHERE course_id=%s',(self.course_id,))
             conn.commit()
             data = cur.fetchall()
             output = []
             for d in data:
                 tag_name = d[0]
-                output.append(Tag(tag_name=tag_name))
+                tag_id = d[1]
+                tag = Tag(tag_name=tag_name)
+                tag.tag_id = tag_id
+                output.append(tag)
             cur.close()
             return output
         except:
             raise Exception("connection error")
+
     def get_name(self):
         try:
             conn = get_connection()
@@ -752,7 +758,6 @@ class Course_semester:
             raise Exception("connection error")
 
 
-
     @staticmethod
     def search(course_name, sem_year, sem_season, instr_roll_num, instr_name):
         try:
@@ -775,6 +780,16 @@ class Course_semester:
                 course_semester.season = d[19]
                 course_semester.roll_number = d[20]
                 course_semester.instr_name = d[21]
+
+                course_semester.num_quiz = d[5]
+                course_semester.num_assgn = d[6]
+                course_semester.exam_toughness = d[7]
+                course_semester.assgn_toughness = d[8]
+                course_semester.overall_feel = d[9]
+                course_semester.project = d[10]
+                course_semester.help_availability = d[11]
+                course_semester.working_hours = d[12]
+                course_semester.team_size = d[13]
                 output.append(course_semester)
             cur.close()
             return output
@@ -809,6 +824,13 @@ class Takes:
 
     def delete(self):
         try:
+            course_tags = Course_tags(course_id=self.course_id)
+            tags_list = course_tags.get_tags()
+            tag_dict = {}
+            for t in tags_list:
+                tag_dict[str(t.tag_id)]='1'
+            update_student_tag_weights(self.student_id, tag_dict, {})
+
             conn = get_connection()
             cur = conn.cursor()
             cur.execute('DELETE FROM TAKES WHERE student_id=%s AND sem_id=%s AND course_id=%s AND instructor_id=%s',\
@@ -818,8 +840,16 @@ class Takes:
         except:
             raise Exception("connection error")
 
+
     def insert(self):
         try:
+            course_tags = Course_tags(course_id=self.course_id)
+            tags_list = course_tags.get_tags()
+            tag_dict = {}
+            for t in tags_list:
+                tag_dict[str(t.tag_id)]='1'
+            update_student_tag_weights(self.student_id, {}, tag_dict)
+
             conn = get_connection()
             cur = conn.cursor()
             cur.execute('INSERT INTO TAKES (student_id, sem_id, course_id, instructor_id) VALUES (%s, %s, %s, %s)', \
@@ -828,6 +858,7 @@ class Takes:
             cur.close()
         except:
             raise Exception("connection error")
+
 
     @staticmethod
     def search(course_name, sem_year, sem_season, instr_roll_num):
@@ -970,7 +1001,7 @@ class Review:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            cur.execute('DELETE FROM REVIEW WHERE take_id=%s' ,(self.take_id))
+            cur.execute('DELETE FROM REVIEW WHERE take_id=%s' ,(self.take_id,))
             conn.commit()
             cur.close()
         except:
@@ -1055,6 +1086,7 @@ class Review:
                 review.working_hours = d[15]
                 review.team_size = d[16]
                 review.followup_course_id = d[17]
+                review.course_name = d[18]
 
                 review.instr_name = d[23]
                 review.year = d[25]
