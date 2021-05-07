@@ -273,12 +273,11 @@ def student_recommender(request):
     for sim_stud in similar_students:
         extras = get_recommended_courses(student.student_id, sim_stud)
         cur = [get_student_name(sim_stud)]
-        cur.append("<a href=\"http://127.0.0.1:8000/student/messages/?student_id={}\">Message!</a>&nbsp;".format(sim_stud))
-        course_list = ""
+        cur.append("http://127.0.0.1:8000/student/messages/?student_id={}".format(sim_stud))
+        ls = []
         for c, s, i in extras:
-            course_list += "<a href=\"http://127.0.0.1:8000/view_reviews/?course_id={}&sem_id={}&instructor_id={}\">{}</a>&nbsp;".format(c, s, i, get_course_name(c))
-        cur.append(course_list)
+            ls.append(["http://127.0.0.1:8000/view_reviews/?course_id={}&sem_id={}&instructor_id={}&course_name={}".format(c, s, i, get_course_name(c)), get_course_name(c)])
+        cur.append(ls)
         out.append(cur)
     context['recommended'] = out
     return render(request, 'student/recommender.html', context)
-
