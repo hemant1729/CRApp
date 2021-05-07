@@ -54,30 +54,48 @@ def get_similar_students(student_id):
         data = cur.fetchall()
         out = []
         for d in data:
-            out.append(Student(d[0]))
+            out.append(d[0])
         return out
-        conn.commit()
         cur.close()
     except:
         raise Exception("connection error")
 
-def get_recommended_courses(student_id):
+def get_recommended_courses(student_id1, student_id2):
     try:
         out = []
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT course_id from takes where student_id = %s", (student_id,))
-        done = [d[0] for d in cur.fetchall()]
+        cur.execute("SELECT course_id from takes where student_id = %s", (student_id1,))
+        done = {d[0] for d in cur.fetchall()}
         cur.close()
-        students = get_similar_students(student_id)
-        for student in students:
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT course_id from takes where student_id = %s", (student,))
-            extras = [d[0] for d in cur.fetchall()]
-            out += list(set(extras) - set(done))
-            conn.commit()
-            cur.close()
-        return out
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT course_id, sem_id, instructor_id from takes where student_id = %s", (student_id2,))
+        extras = []
+        data = cur.fetchall()
+        for d in data:
+            if d[0] not in done:
+                extras.append((d[0], d[1], d[2]))
+        cur.close()
+        return extras
     except:
         raise Exception("connection error")
+def get_student_name(student_id):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT name from student where student_id=%s", (student_id,))
+        data = cur.fetchall()
+        return data[0][0]
+    except:
+        raise Exception("connection")
+
+def get_course_name(course_id):
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT course_name from course where course_id=%s", (course_id,))
+        data = cur.fetchall()
+        return data[0][0]
+    except:
+        raise Exception("connection")
