@@ -7,7 +7,7 @@ from app.recommender.models import *
 def get_connection():
     try:
         conn = psycopg2.connect(user="postgres",
-                                      password="kumarpavan@15",
+                                      password="postgres",
                                       host="127.0.0.1",
                                       port="5432",
                                       database="crapp")
@@ -547,6 +547,7 @@ class Student:
                 course_semester.instr_roll_num = d[22]
                 course_semester.instr_name = d[23]
                 course_semester.take_id = d[3]
+                course_semester.time_slot_id = d[5]
                 output.append(course_semester)
             cur.close()
             return output
@@ -1228,7 +1229,6 @@ class Issues:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            #print(self.student_id,self.date,self.issue)
             cur.execute('INSERT INTO ISSUES (student_id, date, issue, status, reply) VALUES (%s,%s,%s,%s,%s)', (self.student_id, self.date, self.issue, self.status, self.reply))
             conn.commit()
             cur.close()
@@ -1285,10 +1285,7 @@ class Message:
         try:
             conn = get_connection()
             cur = conn.cursor()
-            print("hello")
-            print(self.sender_id,self.receiver_id,self.text,self.time)
             cur.execute('INSERT INTO MESSAGES (sender_id,receiver_id,message,time) VALUES (%s,%s,%s,%s)', (self.sender_id,self.receiver_id,self.text,self.time))
-            print("hello2")
             conn.commit()
             cur.close()
         except:

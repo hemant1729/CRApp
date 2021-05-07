@@ -51,8 +51,8 @@ def student_courses(request):
     student = Student(request.user.username)
     student.fill()
     if request.method == 'POST':
-            data = request.POST
-        #try:
+        data = request.POST
+        try:
             if 'search' in data:
                 course_name = data['course_name']
                 year = data['year']
@@ -87,8 +87,8 @@ def student_courses(request):
                     take = Takes(student.student_id, u[0], u[1], u[2])
                     take.insert()
                 takes = student.get_takes('', '', '', '')
-        #except:
-           # error = 'DB error'
+        except:
+            error = 'DB error'
 
     else:
         takes = student.get_takes('','','','')
@@ -302,6 +302,7 @@ def student_recommender(request):
     context['recommended'] = out
     return render(request, 'student/recommender.html', context)
 
+
 @login_required(login_url='/')
 def student_issues(request):
     username = request.user.username
@@ -310,8 +311,8 @@ def student_issues(request):
     error = ''
     context = {}
     if request.method == 'POST':
-            data = request.POST
-        #try:
+        data = request.POST
+        try:
             if 'view_issues' in data:
                 issues_list = Issues.view_issues(student.student_id)
                 context['issue_texts'] = issues_list
@@ -325,8 +326,8 @@ def student_issues(request):
                     issue.insert()
                 else:
                     error = "Type something to send"
-        #except:
-            #error = "DB error"
+        except:
+            error = "DB error"
     context['error'] = error
     return render(request, 'student/issues.html', context)
 
